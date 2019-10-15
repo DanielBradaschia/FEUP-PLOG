@@ -1,3 +1,12 @@
+board(
+[
+[empty, empty, empty, empty],
+[empty, empty, kingB, empty],
+[empty, kingW, empty, empty],
+[empty, empty, empty, empty]
+]
+).
+
 printTop:-
         write('_________________________').
 
