@@ -11,7 +11,7 @@ translate(empty,S) :- S='  '.
 translate(kingB,S) :- S='kB'.
 translate(kingW,S) :- S='kW'.
 
-displayBoard(X):-
+display_game(X):-
         nl,
         printMatrix(X, 1).
 
