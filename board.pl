@@ -72,6 +72,7 @@ printMatrix([H|T], N):-
         write('  '),
         N1 is N+1,
         write(N),
+        write(' | '),
         printLine(H),
 	nl,
         printMatrix(T, N1).
