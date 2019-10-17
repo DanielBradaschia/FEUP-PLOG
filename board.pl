@@ -1,26 +1,3 @@
-/*
-display_game([
-[empty, empty, empty, empty],
-[empty, empty, kingB, empty],
-[empty, kingW, empty, empty],
-[empty, empty, empty, empty]
-]).
-
-display_game([
-[queenB, empty, empty, kingB],
-[empty, empty, empty, empty],
-[empty, empty, bishopW, empty],
-[empty, kingW, empty, empty]
-]).
-
-display_game([
-[empty, empty, towerW, kingB],
-[empty, empty, empty, bishopW],
-[pawnB, empty, empty, empty],
-[kingW, empty, empty, empty]
-]).
-*/
-
 board1(
 [
 [empty, empty, empty, empty],
@@ -65,7 +42,7 @@ translate(pawnW,S) :- S='pW'.
 display_game:-
 	printSeparatorIndex, nl,
 	printTop,
-	board3(T), nl,
+	board1(T), nl,
         printMatrix(T, 1),
 	printSeparatorLine.
 	
@@ -101,14 +78,3 @@ printSeparatorColumn:-
 
 printSeparatorIndex:-
         write('      a    b    c    d ').
-
-printBoard:-
-        printTop,nl,
-        printSeparatorColumn,nl,
-        printSeparatorLine,nl,
-        printSeparatorColumn,nl,
-        printSeparatorLine,nl,
-        printSeparatorColumn,nl,
-        printSeparatorLine,nl,
-        printSeparatorColumn,nl,
-        printSeparatorLine,nl.
