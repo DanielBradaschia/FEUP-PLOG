@@ -62,9 +62,13 @@ translate(horseW,S) :- S='hW'.
 translate(pawnB,S) :- S='pB'.
 translate(pawnW,S) :- S='pW'.
 
-display_game(X):-
-        nl,
-        printMatrix(X, 1).
+display_game:-
+	printSeparatorIndex, nl,
+	printTop,
+	board1(T), nl,
+        printMatrix(T, 1),
+	printSeparatorLine.
+	
 
 printMatrix([], 5).
 
@@ -72,7 +76,7 @@ printMatrix([H|T], N):-
         write('  '),
         N1 is N+1,
         write(N),
-        write(' | '),
+	write(' | '),
         printLine(H),
 	nl,
         printMatrix(T, N1).
@@ -87,14 +91,16 @@ printLine([H|T]):-
 
 
 printTop:-
-        write('_________________________').
+        write('     ___________________ ').
 
 printSeparatorLine:-
-        write('|_____|_____|_____|_____|').
+        write('    |____|____|____|____|').
 
 printSeparatorColumn:-
         write('|     |     |     |     |').
 
+printSeparatorIndex:-
+        write('      a    b    c    d ').
 
 printBoard:-
         printTop,nl,
