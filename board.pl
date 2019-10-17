@@ -65,7 +65,7 @@ translate(pawnW,S) :- S='pW'.
 display_game:-
 	printSeparatorIndex, nl,
 	printTop,
-	board1(T), nl,
+	board3(T), nl,
         printMatrix(T, 1),
 	printSeparatorLine.
 	
