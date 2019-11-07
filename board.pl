@@ -41,7 +41,7 @@ translate(pawnW,S) :- S='pW'.
 
 display_game:-
 	printSeparatorIndex, nl,
-	printTop,
+	printSeparatorLine,
 	board1(T), nl,
         printMatrix(T, 1),
 	printSeparatorLine.
@@ -66,18 +66,14 @@ printLine([H|T]):-
         write(' | '),
         printLine(T).
 
-
-printTop:-
-        write('     ___________________ ').
-
 printSeparatorLine:-
-        write('    |____|____|____|____|').
+        write('    ---------------------').
 
 printSeparatorColumn:-
         write('|     |     |     |     |').
 
 printSeparatorIndex:-
-        write('      a    b    c    d ').
+        write('      1    2    3    4 ').
 
 
 /*General Movement*/
