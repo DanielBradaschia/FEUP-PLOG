@@ -1,48 +1,30 @@
-board1(
+board(
 [
-[empty, empty, empty, empty],
-[empty, empty, kingB, empty],
-[empty, kingW, empty, empty],
-[empty, empty, empty, empty]
+[{}, {}, {}, {}],
+[{}, {}, {2,3,kingB}, {}],
+[{}, {3,2,kingW}, {}, {}],
+[{}, {}, {}, {}]
 ]
 ).
 
-board2(
-[
-[queenB, empty, empty, kingB],
-[empty, empty, empty, empty],
-[empty, empty, bishopW, empty],
-[empty, kingW, empty, empty]
-]
-).
-
-board3(
-[
-[empty, empty, towerW, kingB],
-[empty, empty, empty, bishopW],
-[pawnB, empty, empty, empty],
-[kingW, empty, empty, empty]
-]
-).
-
-translate(empty,S) :- S='  '.
-translate(kingB,S) :- S='kB'.
-translate(kingW,S) :- S='kW'.
-translate(queenB,S) :- S='qB'.
-translate(queenW,S) :- S='qW'.
-translate(bishopB,S) :- S='bB'.
-translate(bishopW,S) :- S='bW'.
-translate(towerB,S) :- S='tB'.
-translate(towerW,S) :- S='tW'.
-translate(horseB,S) :- S='hB'.
-translate(horseW,S) :- S='hW'.
-translate(pawnB,S) :- S='pB'.
-translate(pawnW,S) :- S='pW'.
+translate({},S) :- S='  '.
+translate({A,B,kingB},S) :- S='kB'.
+translate({A,B,kingW},S) :- S='kW'.
+translate({A,B,queenB},S) :- S='qB'.
+translate({A,B,queenW},S) :- S='qW'.
+translate({A,B,bishopB},S) :- S='bB'.
+translate({A,B,bishopW},S) :- S='bW'.
+translate({A,B,towerB},S) :- S='tB'.
+translate({A,B,towerW},S) :- S='tW'.
+translate({A,B,horseB},S) :- S='hB'.
+translate({A,B,horseW},S) :- S='hW'.
+translate({A,B,pawnB},S) :- S='pB'.
+translate({A,B,pawnW},S) :- S='pW'.
 
 display_game:-
 	printSeparatorIndex, nl,
 	printSeparatorLine,
-	board1(T), nl,
+	board(T), nl,
         printMatrix(T, 1),
 	printSeparatorLine.
 	
@@ -75,6 +57,29 @@ printSeparatorColumn:-
 printSeparatorIndex:-
         write('      1    2    3    4 ').
 
+getPieces(TAB, plist):-
+	getPiecesI(TAB, plist).
+
+getPiecesI([],[]).
+
+getPiecesI([H|T], plist):-
+	getPiecesI(T, aux1),
+	getPiecesJ(H, aux2),
+	append(aux1, aux2, plist).
+
+getPiecesJ([H|T], plist):-
+	getPiecesJ(T, aux1),
+	createList(H,  aux2),
+	append(aux1, aux2, plist).
+
+createList({},[]).
+
+createList({X,Y,Z,W},[{X,Y,Z,W}]).
+
+verifyPlace(TAB, {line, col, type}):-
+	getPieces(TAB, plist),
+	nonmember({line,col,type},plist).
+
 
 /*General Movement*/
 verifyMoveInsideBoard(line, col):-
@@ -83,11 +88,11 @@ verifyMoveInsideBoard(line, col):-
         col>=1,
         col=<4.
 
-verifyMove({line,col,type,_},{line_end,col_end}):-
+verifyMove({line,col,type},{line_end,col_end}):-
         line\=line_end,
         verifyMoveType({line,col,type},{line_end,col_end}).
 
-verifyMove({line,col,type,_},{line_end,col_end}):-
+verifyMove({line,col,type},{line_end,col_end}):-
         col\=col_end,
         verifyMoveType({line,col,type},{line_end,col_end}).
 
@@ -109,22 +114,40 @@ verifyMoveDiag(line, col, line_end, col_end):-
         AX=AY.
 
 /*Types of Movement*/
-verifyMoveType({line,col,k},{line_end,col_end}):-
+verifyMoveType({line,col,kingW},{line_end,col_end}):-
         verifyMoveKing(line, col, line_end, col_end).
 
-verifyMoveType({line,col,q},{line_end,col_end}):-
+verifyMoveType({line,col,queenW},{line_end,col_end}):-
         verifyMoveQueen(line, col, line_end, col_end).
 
-verifyMoveType({line,col,t},{line_end,col_end}):-
+verifyMoveType({line,col,towerW},{line_end,col_end}):-
         verifyMoveTower(line, col, line_end, col_end).
 
-verifyMoveType({line,col,b},{line_end,col_end}):-
+verifyMoveType({line,col,bishopW},{line_end,col_end}):-
         verifyMoveBishop(line, col, line_end, col_end).
 
-verifyMoveType({line,col,h},{line_end,col_end}):-
+verifyMoveType({line,col,horseW},{line_end,col_end}):-
         verifyMoveHorse(line, col, line_end, col_end).
 
-verifyMoveType({line,col,p},{line_end,col_end}):-
+verifyMoveType({line,col,pawnB},{line_end,col_end}):-
+        verifyMovePawn(line, col, line_end, col_end).
+
+verifyMoveType({line,col,kingB},{line_end,col_end}):-
+        verifyMoveKing(line, col, line_end, col_end).
+
+verifyMoveType({line,col,queenB},{line_end,col_end}):-
+        verifyMoveQueen(line, col, line_end, col_end).
+
+verifyMoveType({line,col,towerB},{line_end,col_end}):-
+        verifyMoveTower(line, col, line_end, col_end).
+
+verifyMoveType({line,col,bishopB},{line_end,col_end}):-
+        verifyMoveBishop(line, col, line_end, col_end).
+
+verifyMoveType({line,col,horseB},{line_end,col_end}):-
+        verifyMoveHorse(line, col, line_end, col_end).
+
+verifyMoveType({line,col,pawnB},{line_end,col_end}):-
         verifyMovePawn(line, col, line_end, col_end).
 
 /*King Movement*/
@@ -243,3 +266,5 @@ echeck:-
         printMainMenu,
         write(' Selecione uma opcao:'), nl,
         selectGameMode.
+
+
