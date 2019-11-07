@@ -189,3 +189,57 @@ validatePawnVertHor(AX,AY):-AX=1,AY=0.
 validatePawnDiag(AX,AX):-AX=1.
 
 
+/*Game Functions*/
+selectGameMode:-
+        repeat,
+        read(Action),
+        Action > 0,
+        Action < 6,
+        gameMode(Action).
+
+gameMode(1):-
+        write('Em desenvolvimento').
+
+gameMode(2):-
+        write('Em desenvolvimento').
+
+gameMode(3):-
+        write('Em desenvolvimento').
+
+gameMode(4):-
+        write('Em desenvolvimento').
+
+gameMode(5):-
+        write(' |-----------------------------------------------------| '), nl,
+        write(' |      Thank you so much for playing our game!        | '), nl,
+        write(' |-----------------------------------------------------| '), nl,
+        nl,
+        nl.
+
+gameMode(_):-
+        write('Introduza uma opcao valida').
+
+printMainMenu:-
+        nl, nl, nl,
+        write(' _______________________________________________________ '), nl,
+        write(' |                                                     | '), nl,
+        write(' |                 WELCOME TO ECHECK                   | '), nl,
+        write(' |                                                     | '), nl,
+        write(' |               Daniel Gazola Bradaschia              | '), nl,
+        write(' |           Gustavo Speranzini Tosi Tavares           | '), nl,
+        write(' |                 PLOG - FEUP 19/20                   | '), nl,
+        write(' |                                                     | '), nl,
+        write(' |-----------------------------------------------------| '), nl,
+        write(' |                                                     | '), nl,
+        write(' |         1. Start Game Player vs Player              | '), nl,
+        write(' |         2. Start Game PC vs Player                  | '), nl,
+        write(' |         3. Start Game PC vs PC                      | '), nl,
+        write(' |         4. How to play                              | '), nl,
+        write(' |         5. Exit                                     | '), nl,
+        write(' |                   Choose an option                  | '), nl,
+        write(' |_____________________________________________________| '), nl.
+
+echeck:-
+        printMainMenu,
+        write(' Selecione uma opcao:'), nl,
+        selectGameMode.
