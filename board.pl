@@ -2,7 +2,7 @@
 :- use_module(library(system)).
 
 clearScreen:-
-        write('\33\[2J'),nl.
+        write('\16\.'),nl.
 
 display_game(TAB, PLAYER, pvp):-
         printBoard(TAB),
@@ -21,16 +21,11 @@ verifyPosition(TAB,LINE,COL,PLAYER,SQUARE):-
 verifyPosition(TAB,LINE,COL,PLAYER,SQUARE):-
         clearScreen, printBoard(TAB),
         write('Invalid Position. Try again!'), nl,
-        verifyPosition(TAB,PLAYER,SQUARE).
-
-
+        choosePiece(TAB,PLAYER,SQUARE).
 
 verifyPiece(TAB, {LINE, COL, TYPE}):-
 	getPieces(TAB, PLIST),
 	member({LINE,COL,TYPE},PLIST).
-
-
-
 
 board(
 [
@@ -59,7 +54,7 @@ printBoard(TAB):-
 	printSeparatorIndex, nl,
 	printSeparatorLine,
 	board(TAB), nl,
-        printMatrix(T, 1),
+        printMatrix(TAB, 1),
 	printSeparatorLine.
 	
 
@@ -110,7 +105,7 @@ createList({},[]).
 
 createList({X,Y,Z,W},[{X,Y,Z,W}]).
 
-verifyPlace(TAB, {LINE, COL, TYPE}):-
+verifyPlace(TAB, LINE, COL, TYPE):-
 	getPieces(TAB, PLIST),
 	nonmember({LINE,COL,TYPE},PLIST).
 
@@ -301,5 +296,3 @@ play:-
         printMainMenu,
         write(' Selecione uma opcao:'), nl,
         selectGameMode.
-
-
