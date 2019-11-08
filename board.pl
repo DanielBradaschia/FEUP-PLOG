@@ -5,50 +5,97 @@ clearScreen:-
         write('\16\.'),nl.
 
 display_game(TAB, PLAYER, pvp):-
+        repeat,
         printBoard(TAB),
+        nl, write(' PLAYER '), write(PLAYER),write(' - '),
+        write('Choose an option!'), nl,
+        write('1. Put Piece on Board'), nl,
+        write('2. Move Piece'), nl,
+        read(Action),
+        gameChoice(Action, TAB, PLAYER).
+
+gameChoice(1, TAB, PLAYER):-
+        write('Choose an option!'), nl,
+        write('1. Queen'), nl,
+        write('2. Bishop'), nl,
+        write('3. Tower'), nl,
+        write('4. Horse'), nl,
+        write('5. Pawn'), nl,
+        read(Action),
+        translate(Action,PLAYER,TYPE),
+        putPiece(TYPE, TAB, PLAYER).
+
+putPiece(TYPE, TAB, PLAYER):-
+        write(' Select Row/Column to put in: '),
+        read(LINE/COL),
+        /*TENTAR COLOCAR NUMA FUNCAO SO <3*/
+        verifyMoveInsideBoard(LINE, COL),
+        verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}),
+        verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}).
+
+
+gameChoice(2, TAB, PLAYER):-
         choosePiece(TAB, PLAYER, SQUARE).
 
+gameChoice(_, TAB, PLAYER):-
+        write('Choose a valid option!').
+        
 choosePiece(TAB, PLAYER, SQUARE):-
-        nl, write(' PLAYER '), write(PLAYER),write(' - '),
         write(' Select Row/Column: '),
         read(LINE/COL),
         verifyPosition(TAB,LINE,COL,PLAYER,SQUARE).
 
 verifyPosition(TAB,LINE,COL,PLAYER,SQUARE):-
         verifyMoveInsideBoard(LINE, COL),
-        verifyPiece(TAB, {LINE, COL, TYPE}).
+        verifyPiece(TAB, {LINE, COL, TYPE, PLAYER}).
 
 verifyPosition(TAB,LINE,COL,PLAYER,SQUARE):-
         clearScreen, printBoard(TAB),
-        write('Invalid Position. Try again!'), nl,
+        nl, write('Invalid Position. Try again!'), nl,
         choosePiece(TAB,PLAYER,SQUARE).
 
-verifyPiece(TAB, {LINE, COL, TYPE}):-
-	getPieces(TAB, PLIST),
-	member({LINE,COL,TYPE},PLIST).
+verifyPiece(TAB, {LINE, COL, TYPE, PLAYER}):-
+	getPiecesI(TAB, PLIST),
+	member({LINE,COL,TYPE, PLAYER},PLIST).
+
+verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}):-
+	getPiecesI(TAB, PLIST),
+	member({LINE,COL,empty,_},PLIST).
 
 board(
 [
 [{}, {}, {}, {}],
-[{}, {}, {2,3,kingB}, {}],
-[{}, {3,2,kingW}, {}, {}],
+[{}, {}, {2,3,kingB, black}, {}],
+[{}, {3,2,kingW, white}, {}, {}],
 [{}, {}, {}, {}]
 ]
 ).
 
 translate({},S) :- S='  '.
-translate({_,_,kingB},S) :- S='kB'.
-translate({_,_,kingW},S) :- S='kW'.
-translate({_,_,queenB},S) :- S='qB'.
-translate({_,_,queenW},S) :- S='qW'.
-translate({_,_,bishopB},S) :- S='bB'.
-translate({_,_,bishopW},S) :- S='bW'.
-translate({_,_,towerB},S) :- S='tB'.
-translate({_,_,towerW},S) :- S='tW'.
-translate({_,_,horseB},S) :- S='hB'.
-translate({_,_,horseW},S) :- S='hW'.
-translate({_,_,pawnB},S) :- S='pB'.
-translate({_,_,pawnW},S) :- S='pW'.
+translate({_,_,kingB, black},S) :- S='kB'.
+translate({_,_,kingW, white},S) :- S='kW'.
+translate({_,_,queenB, black},S) :- S='qB'.
+translate({_,_,queenW, white},S) :- S='qW'.
+translate({_,_,bishopB, black},S) :- S='bB'.
+translate({_,_,bishopW, white},S) :- S='bW'.
+translate({_,_,towerB, black},S) :- S='tB'.
+translate({_,_,towerW, white},S) :- S='tW'.
+translate({_,_,horseB, black},S) :- S='hB'.
+translate({_,_,horseW, white},S) :- S='hW'.
+translate({_,_,pawnB, black},S) :- S='pB'.
+translate({_,_,pawnW, white},S) :- S='pW'.
+
+translate(1, white, S):- S='queenW'.
+translate(2, white, S):- S='bishopW'.
+translate(3, white, S):- S='towerW'.
+translate(4, white, S):- S='horseW'.
+translate(5, white, S):- S='pawnW'.
+
+translate(1, black, S):- S='queenB'.
+translate(2, black, S):- S='towerB'.
+translate(3, black, S):- S='pawnB'.
+translate(4, black, S):- S='bishopB'.
+translate(5, black, S):- S='horseB'.
 
 printBoard(TAB):-
 	printSeparatorIndex, nl,
@@ -86,9 +133,6 @@ printSeparatorColumn:-
 printSeparatorIndex:-
         write('      1    2    3    4 ').
 
-getPieces(TAB, PLIST):-
-	getPiecesI(TAB, PLIST).
-
 getPiecesI([],[]).
 
 getPiecesI([H|T], PLIST):-
@@ -96,26 +140,28 @@ getPiecesI([H|T], PLIST):-
 	getPiecesJ(H, AUX2),
 	append(AUX1, AUX2, PLIST).
 
+getPiecesJ([],[]).
+
 getPiecesJ([H|T], PLIST):-
 	getPiecesJ(T, AUX1),
 	createList(H,  AUX2),
 	append(AUX1, AUX2, PLIST).
 
-createList({},[]).
-
 createList({X,Y,Z,W},[{X,Y,Z,W}]).
 
-verifyPlace(TAB, LINE, COL, TYPE):-
-	getPieces(TAB, PLIST),
-	nonmember({LINE,COL,TYPE},PLIST).
+createList({},[]).
+
+verifyPlace(TAB, {LINE, COL, TYPE, PLAYER}):-
+	getPiecesI(TAB, PLIST),
+	nonmember({_,_,TYPE, PLAYER},PLIST).
 
 
 /*General Movement*/
-verifyMoveInsideBoard(line, col):-
-        line>=1,
-        line=<4,
-        col>=1,
-        col=<4.
+verifyMoveInsideBoard(LINE, COL):-
+        LINE>=1,
+        LINE=<4,
+        COL>=1,
+        COL=<4.
 
 verifyMove({line,col,type},{line_end,col_end}):-
         line\=line_end,
