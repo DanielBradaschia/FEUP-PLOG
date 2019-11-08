@@ -1,3 +1,37 @@
+:- use_module(library(random)).
+:- use_module(library(system)).
+
+clearScreen:-
+        write('\33\[2J'),nl.
+
+display_game(TAB, PLAYER, pvp):-
+        printBoard(TAB),
+        choosePiece(TAB, PLAYER, SQUARE).
+
+choosePiece(TAB, PLAYER, SQUARE):-
+        nl, write(' PLAYER '), write(PLAYER),write(' - '),
+        write(' Select Row/Column: '),
+        read(LINE/COL),
+        verifyPosition(TAB,LINE,COL,PLAYER,SQUARE).
+
+verifyPosition(TAB,LINE,COL,PLAYER,SQUARE):-
+        verifyMoveInsideBoard(LINE, COL),
+        verifyPiece(TAB, {LINE, COL, TYPE}).
+
+verifyPosition(TAB,LINE,COL,PLAYER,SQUARE):-
+        clearScreen, printBoard(TAB),
+        write('Invalid Position. Try again!'), nl,
+        verifyPosition(TAB,PLAYER,SQUARE).
+
+
+
+verifyPiece(TAB, {LINE, COL, TYPE}):-
+	getPieces(TAB, PLIST),
+	member({LINE,COL,TYPE},PLIST).
+
+
+
+
 board(
 [
 [{}, {}, {}, {}],
@@ -8,23 +42,23 @@ board(
 ).
 
 translate({},S) :- S='  '.
-translate({A,B,kingB},S) :- S='kB'.
-translate({A,B,kingW},S) :- S='kW'.
-translate({A,B,queenB},S) :- S='qB'.
-translate({A,B,queenW},S) :- S='qW'.
-translate({A,B,bishopB},S) :- S='bB'.
-translate({A,B,bishopW},S) :- S='bW'.
-translate({A,B,towerB},S) :- S='tB'.
-translate({A,B,towerW},S) :- S='tW'.
-translate({A,B,horseB},S) :- S='hB'.
-translate({A,B,horseW},S) :- S='hW'.
-translate({A,B,pawnB},S) :- S='pB'.
-translate({A,B,pawnW},S) :- S='pW'.
+translate({_,_,kingB},S) :- S='kB'.
+translate({_,_,kingW},S) :- S='kW'.
+translate({_,_,queenB},S) :- S='qB'.
+translate({_,_,queenW},S) :- S='qW'.
+translate({_,_,bishopB},S) :- S='bB'.
+translate({_,_,bishopW},S) :- S='bW'.
+translate({_,_,towerB},S) :- S='tB'.
+translate({_,_,towerW},S) :- S='tW'.
+translate({_,_,horseB},S) :- S='hB'.
+translate({_,_,horseW},S) :- S='hW'.
+translate({_,_,pawnB},S) :- S='pB'.
+translate({_,_,pawnW},S) :- S='pW'.
 
-display_game:-
+printBoard(TAB):-
 	printSeparatorIndex, nl,
 	printSeparatorLine,
-	board(T), nl,
+	board(TAB), nl,
         printMatrix(T, 1),
 	printSeparatorLine.
 	
@@ -57,28 +91,28 @@ printSeparatorColumn:-
 printSeparatorIndex:-
         write('      1    2    3    4 ').
 
-getPieces(TAB, plist):-
-	getPiecesI(TAB, plist).
+getPieces(TAB, PLIST):-
+	getPiecesI(TAB, PLIST).
 
 getPiecesI([],[]).
 
-getPiecesI([H|T], plist):-
-	getPiecesI(T, aux1),
-	getPiecesJ(H, aux2),
-	append(aux1, aux2, plist).
+getPiecesI([H|T], PLIST):-
+	getPiecesI(T, AUX1),
+	getPiecesJ(H, AUX2),
+	append(AUX1, AUX2, PLIST).
 
-getPiecesJ([H|T], plist):-
-	getPiecesJ(T, aux1),
-	createList(H,  aux2),
-	append(aux1, aux2, plist).
+getPiecesJ([H|T], PLIST):-
+	getPiecesJ(T, AUX1),
+	createList(H,  AUX2),
+	append(AUX1, AUX2, PLIST).
 
 createList({},[]).
 
 createList({X,Y,Z,W},[{X,Y,Z,W}]).
 
-verifyPlace(TAB, {line, col, type}):-
-	getPieces(TAB, plist),
-	nonmember({line,col,type},plist).
+verifyPlace(TAB, {LINE, COL, TYPE}):-
+	getPieces(TAB, PLIST),
+	nonmember({LINE,COL,TYPE},PLIST).
 
 
 /*General Movement*/
@@ -221,7 +255,8 @@ selectGameMode:-
         gameMode(Action).
 
 gameMode(1):-
-        write('Em desenvolvimento').
+        board(TAB),
+        display_game(TAB, white, pvp).
 
 gameMode(2):-
         write('Em desenvolvimento').
@@ -262,7 +297,7 @@ printMainMenu:-
         write(' |                   Choose an option                  | '), nl,
         write(' |_____________________________________________________| '), nl.
 
-echeck:-
+play:-
         printMainMenu,
         write(' Selecione uma opcao:'), nl,
         selectGameMode.
