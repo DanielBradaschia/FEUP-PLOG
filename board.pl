@@ -15,6 +15,9 @@ display_game(TAB, PLAYER, pvp):-
         gameChoice(Action, TAB, PLAYER).
 
 gameChoice(1, TAB, PLAYER):-
+	placePiece(TAB, PLAYER).
+
+placePiece(TAB,PLAYER):-
         write('Choose an option!'), nl,
         write('1. Queen'), nl,
         write('2. Bishop'), nl,
@@ -23,16 +26,29 @@ gameChoice(1, TAB, PLAYER):-
         write('5. Pawn'), nl,
         read(Action),
         translate(Action,PLAYER,TYPE),
+	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}),
         putPiece(TYPE, TAB, PLAYER).
+
+
+verifyPlace(TAB, {LINE, COL, TYPE, PLAYER}):-
+	getPiecesI(TAB, PLIST),
+	nonmember({_,_,TYPE, PLAYER},PLIST).
+
+verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}):-
+	clearScreen, printBoard(TAB),
+        nl, write('Invalid Option. Try again!'), nl,
+        placePiece(TAB,PLAYER).
 
 putPiece(TYPE, TAB, PLAYER):-
         write(' Select Row/Column to put in: '),
         read(LINE/COL),
-        /*TENTAR COLOCAR NUMA FUNCAO SO <3*/
         verifyMoveInsideBoard(LINE, COL),
-        verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}),
-        verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}).
+        verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}).
 
+putPiece(TYPE, TAB, PLAYER):-
+	clearScreen, printBoard(TAB),
+        nl, write('Invalid Position. Try again!'), nl,
+        putPiece(TYPE, TAB,PLAYER).
 
 gameChoice(2, TAB, PLAYER):-
         choosePiece(TAB, PLAYER, SQUARE).
@@ -60,18 +76,18 @@ verifyPiece(TAB, {LINE, COL, TYPE, PLAYER}):-
 
 verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}):-
 	getPiecesI(TAB, PLIST),
-	member({LINE,COL,empty,_},PLIST).
+	member({LINE,COL,none,none},PLIST).
 
 board(
 [
-[{}, {}, {}, {}],
-[{}, {}, {2,3,kingB, black}, {}],
-[{}, {3,2,kingW, white}, {}, {}],
-[{}, {}, {}, {}]
+[{1,1,none,none}, {1,2,none,none}, {1,3,none,none}, {1,4,none,none}],
+[{2,1,none,none}, {2,2,none,none}, {2,3,kingB,black}, {2,4,none,none}],
+[{3,1,none,none}, {3,2,kingW,white}, {3,3,none,none}, {3,4,none,none}],
+[{4,1,none,none}, {4,2,none,none}, {4,3,none,none}, {4,4,none,none}]
 ]
 ).
 
-translate({},S) :- S='  '.
+translate({_,_,none, none},S) :- S='  '.
 translate({_,_,kingB, black},S) :- S='kB'.
 translate({_,_,kingW, white},S) :- S='kW'.
 translate({_,_,queenB, black},S) :- S='qB'.
@@ -148,13 +164,6 @@ getPiecesJ([H|T], PLIST):-
 	append(AUX1, AUX2, PLIST).
 
 createList({X,Y,Z,W},[{X,Y,Z,W}]).
-
-createList({},[]).
-
-verifyPlace(TAB, {LINE, COL, TYPE, PLAYER}):-
-	getPiecesI(TAB, PLIST),
-	nonmember({_,_,TYPE, PLAYER},PLIST).
-
 
 /*General Movement*/
 verifyMoveInsideBoard(LINE, COL):-
