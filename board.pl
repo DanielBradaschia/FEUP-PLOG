@@ -29,7 +29,7 @@ placePiece(TAB,PLAYER):-
 	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}),
         putPiece(TYPE, TAB, PLAYER).
 
-
+/*Ve peca repetida*/
 verifyPlace(TAB, {LINE, COL, TYPE, PLAYER}):-
 	getPiecesI(TAB, PLIST),
 	nonmember({_,_,TYPE, PLAYER},PLIST).
@@ -40,7 +40,7 @@ verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}):-
         placePiece(TAB,PLAYER).
 
 putPiece(TYPE, TAB, PLAYER):-
-        write(' Select Row/Column to put in: '),
+        write(' Select Place (Row/Column) to put in: '),
         read(LINE/COL),
         verifyMoveInsideBoard(LINE, COL),
         verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}).
@@ -51,13 +51,30 @@ putPiece(TYPE, TAB, PLAYER):-
         putPiece(TYPE, TAB,PLAYER).
 
 gameChoice(2, TAB, PLAYER):-
-        choosePiece(TAB, PLAYER, SQUARE).
+        choosePiece(TAB, PLAYER, SQUARE),
+        movePiece(TAB, PLAYER, SQUARE, WIN, NEWTAB).
+
+movePiece(TAB, PLAYER, SQUARE, WIN, NEWTAB):-
+        write(' Select Destination (Row/Column): '),
+        read(LINE/COL),
+        verifyEndPosition(TAB,LINE,COL,SQUARE,WIN,NEWTAB).
+
+verifyEndPosition(TAB,LINE,COL,SQUARE,WIN,NEWTAB):-
+        verifyMoveInsideBoard(LINE, COL),
+        print(SQUARE),
+        verifyMove(SQUARE, {LINE,COL}),
+        write('PASSEI2'),
+        verifyNotPiece(TAB, SQUARE).
+        /*executeMove(SQUARE, {LINE,COL}, TAB, NEWTAB).*/
+
+
+
 
 gameChoice(_, TAB, PLAYER):-
         write('Choose a valid option!').
         
 choosePiece(TAB, PLAYER, SQUARE):-
-        write(' Select Row/Column: '),
+        write(' Select Piece (Row/Column): '),
         read(LINE/COL),
         verifyPosition(TAB,LINE,COL,PLAYER,SQUARE).
 
@@ -74,6 +91,7 @@ verifyPiece(TAB, {LINE, COL, TYPE, PLAYER}):-
 	getPiecesI(TAB, PLIST),
 	member({LINE,COL,TYPE, PLAYER},PLIST).
 
+/*Ve espaco vazio*/
 verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}):-
 	getPiecesI(TAB, PLIST),
 	member({LINE,COL,none,none},PLIST).
@@ -115,10 +133,10 @@ translate(5, black, S):- S='horseB'.
 
 printBoard(TAB):-
 	printSeparatorIndex, nl,
-	printSeparatorLine,
+	printSeparatorLINE,
 	board(TAB), nl,
         printMatrix(TAB, 1),
-	printSeparatorLine.
+	printSeparatorLINE.
 	
 
 printMatrix([], 5).
@@ -128,22 +146,22 @@ printMatrix([H|T], N):-
         N1 is N+1,
         write(N),
 	write(' | '),
-        printLine(H),
+        printLINE(H),
 	nl,
         printMatrix(T, N1).
 
-printLine([]).
+printLINE([]).
 
-printLine([H|T]):-
+printLINE([H|T]):-
         translate(H, S),
         write(S),
         write(' | '),
-        printLine(T).
+        printLINE(T).
 
-printSeparatorLine:-
+printSeparatorLINE:-
         write('    ---------------------').
 
-printSeparatorColumn:-
+printSeparatorCOLumn:-
         write('|     |     |     |     |').
 
 printSeparatorIndex:-
@@ -172,17 +190,19 @@ verifyMoveInsideBoard(LINE, COL):-
         COL>=1,
         COL=<4.
 
-verifyMove({line,col,type},{line_end,col_end}):-
-        line\=line_end,
-        verifyMoveType({line,col,type},{line_end,col_end}).
+verifyMove({LINE,COL,TYPE,_},{LINE_END,COL_END}):-
+        LINE\=LINE_END,
+        write('passei move line'),
+        verifyMoveType({LINE,COL,TYPE},{LINE_END,COL_END}).
 
-verifyMove({line,col,type},{line_end,col_end}):-
-        col\=col_end,
-        verifyMoveType({line,col,type},{line_end,col_end}).
+verifyMove({LINE,COL,TYPE,_},{LINE_END,COL_END}):-
+        COL\=COL_END,
+        write('passei move col'),
+        verifyMoveType({LINE,COL,TYPE},{LINE_END,COL_END}).
 
-verifyMoveVertHor(line, col, line_end, col_end):-
-        X is col_end-col,
-        Y is line_end-line,
+verifyMoveVertHor(LINE, COL, LINE_END, COL_END):-
+        X is COL_END-COL,
+        Y is LINE_END-LINE,
         validateMoveVertHor(X,Y).
 
 validateMoveVertHor(X,Y):-
@@ -190,61 +210,61 @@ validateMoveVertHor(X,Y):-
 validateMoveVertHor(X,Y):-
         X\=0,Y=0.
 
-verifyMoveDiag(line, col, line_end, col_end):-
-        X is col_end-col,
-        Y is line_end-line,
+verifyMoveDiag(LINE, COL, LINE_END, COL_END):-
+        X is COL_END-COL,
+        Y is LINE_END-LINE,
         AX is abs(X),
         AY is abs(Y),
         AX=AY.
 
 /*Types of Movement*/
-verifyMoveType({line,col,kingW},{line_end,col_end}):-
-        verifyMoveKing(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,kingW},{LINE_END,COL_END}):-
+        verifyMoveKing(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,queenW},{line_end,col_end}):-
-        verifyMoveQueen(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,queenW},{LINE_END,COL_END}):-
+        verifyMoveQueen(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,towerW},{line_end,col_end}):-
-        verifyMoveTower(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,towerW},{LINE_END,COL_END}):-
+        verifyMoveTower(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,bishopW},{line_end,col_end}):-
-        verifyMoveBishop(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,bishopW},{LINE_END,COL_END}):-
+        verifyMoveBishop(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,horseW},{line_end,col_end}):-
-        verifyMoveHorse(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,horseW},{LINE_END,COL_END}):-
+        verifyMoveHorse(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,pawnB},{line_end,col_end}):-
-        verifyMovePawn(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,pawnW},{LINE_END,COL_END}):-
+        verifyMovePawn(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,kingB},{line_end,col_end}):-
-        verifyMoveKing(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,kingB},{LINE_END,COL_END}):-
+        verifyMoveKing(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,queenB},{line_end,col_end}):-
-        verifyMoveQueen(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,queenB},{LINE_END,COL_END}):-
+        verifyMoveQueen(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,towerB},{line_end,col_end}):-
-        verifyMoveTower(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,towerB},{LINE_END,COL_END}):-
+        verifyMoveTower(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,bishopB},{line_end,col_end}):-
-        verifyMoveBishop(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,bishopB},{LINE_END,COL_END}):-
+        verifyMoveBishop(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,horseB},{line_end,col_end}):-
-        verifyMoveHorse(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,horseB},{LINE_END,COL_END}):-
+        verifyMoveHorse(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({line,col,pawnB},{line_end,col_end}):-
-        verifyMovePawn(line, col, line_end, col_end).
+verifyMoveType({LINE,COL,pawnB},{LINE_END,COL_END}):-
+        verifyMovePawn(LINE, COL, LINE_END, COL_END).
 
 /*King Movement*/
-verifyMoveKing(line, col, line_end, col_end):-
-        verifyMoveVertHor(line, col, line_end, col_end),
-        AX is abs(col-col_end),
-        AY is abs(line-line_end),
+verifyMoveKing(LINE, COL, LINE_END, COL_END):-
+        verifyMoveVertHor(LINE, COL, LINE_END, COL_END),
+        AX is abs(COL-COL_END),
+        AY is abs(LINE-LINE_END),
         validateKingVertHor(AX,AY).
 
-verifyMoveKing(line, col, line_end, col_end):-
-        verifyMoveDiag(line, col, line_end, col_end),
-        AX is abs(col-col_end),
-        AY is abs(line-line_end),
+verifyMoveKing(LINE, COL, LINE_END, COL_END):-
+        verifyMoveDiag(LINE, COL, LINE_END, COL_END),
+        AX is abs(COL-COL_END),
+        AY is abs(LINE-LINE_END),
         validateKingDiag(AX,AY).
 
 validateKingVertHor(AX,AY):-AX=1,AY=0.
@@ -254,24 +274,24 @@ validateKingVertHor(AX,AY):-AX=0,AY=1.
 validateKingDiag(AX,AX):-AX=1.
 
 /*Queen Movement*/
-verifyMoveQueen(line, col, line_end, col_end):-
-        verifyMoveVertHor(line, col, line_end, col_end).
+verifyMoveQueen(LINE, COL, LINE_END, COL_END):-
+        verifyMoveVertHor(LINE, COL, LINE_END, COL_END).
 
-verifyMoveQueen(line, col, line_end, col_end):-
-        verifyMoveDiag(line, col, line_end, col_end).
+verifyMoveQueen(LINE, COL, LINE_END, COL_END):-
+        verifyMoveDiag(LINE, COL, LINE_END, COL_END).
 
 /*Tower Movement*/
-verifyMoveTower(line, col, line_end, col_end):-
-        verifyMoveVertHor(line, col, line_end, col_end).
+verifyMoveTower(LINE, COL, LINE_END, COL_END):-
+        verifyMoveVertHor(LINE, COL, LINE_END, COL_END).
 
 /*Bishop Movement*/
-verifyMoveBishop(line, col, line_end, col_end):-
-        verifyMoveDiag(line, col, line_end, col_end).
+verifyMoveBishop(LINE, COL, LINE_END, COL_END):-
+        verifyMoveDiag(LINE, COL, LINE_END, COL_END).
 
 /*Horse Movement*/
-verifyMoveHorse(line, col, line_end, col_end):-
-        AX is abs(col-col_end),
-        AY is abs(line-line_end),
+verifyMoveHorse(LINE, COL, LINE_END, COL_END):-
+        AX is abs(COL-COL_END),
+        AY is abs(LINE-LINE_END),
         validateMoveHorse(AX,AY).
 
 validateMoveHorse(AX,AY):-AX=1,AY=2.
@@ -279,16 +299,16 @@ validateMoveHorse(AX,AY):-AX=1,AY=2.
 validateMoveHorse(AX,AY):-AX=2,AY=1.
 
 /*Pawn Movement*/
-verifyMovePawn(line, col, line_end, col_end):-
-        verifyMoveVertHor(line, col, line_end, col_end),
-        AX is col_end-col,
-        AY is line_end-line,
+verifyMovePawn(LINE, COL, LINE_END, COL_END):-
+        verifyMoveVertHor(LINE, COL, LINE_END, COL_END),
+        AX is COL_END-COL,
+        AY is LINE_END-LINE,
         validatePawnVertHor(AX,AY).
 
-verifyMovePawn(line, col, line_end, col_end):-
-        verifyMoveDiag(line, col, line_end, col_end),
-        AX is col_end-col,
-        AY is line_end-line,
+verifyMovePawn(LINE, COL, LINE_END, COL_END):-
+        verifyMoveDiag(LINE, COL, LINE_END, COL_END),
+        AX is COL_END-COL,
+        AY is LINE_END-LINE,
         validatePawnDiag(AX,AY).
 
 validatePawnVertHor(AX,AY):-AX=1,AY=0.
@@ -339,9 +359,9 @@ printMainMenu:-
         write(' |                                                     | '), nl,
         write(' |-----------------------------------------------------| '), nl,
         write(' |                                                     | '), nl,
-        write(' |         1. Start Game Player vs Player              | '), nl,
-        write(' |         2. Start Game PC vs Player                  | '), nl,
-        write(' |         3. Start Game PC vs PC                      | '), nl,
+        write(' |         1. Start Player vs Player                   | '), nl,
+        write(' |         2. Start PC vs Player                       | '), nl,
+        write(' |         3. Start PC vs PC                           | '), nl,
         write(' |         4. How to play                              | '), nl,
         write(' |         5. Exit                                     | '), nl,
         write(' |                   Choose an option                  | '), nl,
