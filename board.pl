@@ -51,41 +51,36 @@ putPiece(TYPE, TAB, PLAYER):-
         putPiece(TYPE, TAB,PLAYER).
 
 gameChoice(2, TAB, PLAYER):-
-        choosePiece(TAB, PLAYER, SQUARE),
-        movePiece(TAB, PLAYER, SQUARE, WIN, NEWTAB).
+        choosePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}),
+        movePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB).
 
-movePiece(TAB, PLAYER, SQUARE, WIN, NEWTAB):-
+movePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB):-
         write(' Select Destination (Row/Column): '),
-        read(LINE/COL),
-        verifyEndPosition(TAB,LINE,COL,SQUARE,WIN,NEWTAB).
+        read(LINEEND/COLEND),
+        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},WIN,NEWTAB).
 
-verifyEndPosition(TAB,LINE,COL,SQUARE,WIN,NEWTAB):-
-        verifyMoveInsideBoard(LINE, COL),
-        print(SQUARE),
-        verifyMove(SQUARE, {LINE,COL}),
-        write('PASSEI2'),
-        verifyNotPiece(TAB, SQUARE).
-        /*executeMove(SQUARE, {LINE,COL}, TAB, NEWTAB).*/
-
-
-
+verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},WIN,NEWTAB):-
+        verifyMoveInsideBoard(LINEEND, COLEND),
+        verifyNotPiece(TAB, {LINEEND, COLEND, TYPE, PLAYER}),
+        verifyMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}).
+        /*executeMove({LINE, COL, TYPE, PLAYER}, {LINE,COL}, TAB, NEWTAB).*/
 
 gameChoice(_, TAB, PLAYER):-
         write('Choose a valid option!').
         
-choosePiece(TAB, PLAYER, SQUARE):-
+choosePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}):-
         write(' Select Piece (Row/Column): '),
         read(LINE/COL),
-        verifyPosition(TAB,LINE,COL,PLAYER,SQUARE).
+        verifyPosition(TAB,LINE,COL,PLAYER,{LINE, COL, TYPE, PLAYER}).
 
-verifyPosition(TAB,LINE,COL,PLAYER,SQUARE):-
-        verifyMoveInsideBoard(LINE, COL),
-        verifyPiece(TAB, {LINE, COL, TYPE, PLAYER}).
-
-verifyPosition(TAB,LINE,COL,PLAYER,SQUARE):-
+choosePiece(TAB,PLAYER,{LINE, COL, TYPE, PLAYER}):-
         clearScreen, printBoard(TAB),
         nl, write('Invalid Position. Try again!'), nl,
-        choosePiece(TAB,PLAYER,SQUARE).
+        choosePiece(TAB,PLAYER,{LINE, COL, TYPE, PLAYER}).
+
+verifyPosition(TAB,LINE,COL,PLAYER,{LINE, COL, TYPE, PLAYER}):-
+        verifyMoveInsideBoard(LINE, COL),
+        verifyPiece(TAB, {LINE, COL, TYPE, PLAYER}).
 
 verifyPiece(TAB, {LINE, COL, TYPE, PLAYER}):-
 	getPiecesI(TAB, PLIST),
@@ -192,12 +187,10 @@ verifyMoveInsideBoard(LINE, COL):-
 
 verifyMove({LINE,COL,TYPE,_},{LINE_END,COL_END}):-
         LINE\=LINE_END,
-        write('passei move line'),
         verifyMoveType({LINE,COL,TYPE},{LINE_END,COL_END}).
 
 verifyMove({LINE,COL,TYPE,_},{LINE_END,COL_END}):-
         COL\=COL_END,
-        write('passei move col'),
         verifyMoveType({LINE,COL,TYPE},{LINE_END,COL_END}).
 
 verifyMoveVertHor(LINE, COL, LINE_END, COL_END):-
