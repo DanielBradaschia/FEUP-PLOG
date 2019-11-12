@@ -50,9 +50,15 @@ putPiece(TYPE, TAB, PLAYER):-
         nl, write('Invalid Position. Try again!'), nl,
         putPiece(TYPE, TAB,PLAYER).
 
-gameChoice(2, TAB, PLAYER):-
+gameChoice(2, TAB, black):-
         choosePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}),
-        movePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB).
+        movePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB),
+        display_game(NEWTAB, white, pvp).
+
+gameChoice(2, TAB, white):-
+        choosePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}),
+        movePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB),
+        display_game(NEWTAB, black, pvp).
 
 movePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB):-
         write(' Select Destination (Row/Column): '),
@@ -62,8 +68,63 @@ movePiece(TAB, PLAYER, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB):-
 verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},WIN,NEWTAB):-
         verifyMoveInsideBoard(LINEEND, COLEND),
         verifyNotPiece(TAB, {LINEEND, COLEND, TYPE, PLAYER}),
-        verifyMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}).
-        /*executeMove({LINE, COL, TYPE, PLAYER}, {LINE,COL}, TAB, NEWTAB).*/
+        verifyMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}),
+        executeMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB).
+
+executeMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB):-
+        moveAux({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB2),
+        printBoard(TAB),
+        printBoard(NEWTAB2),
+        erasePiece({LINE, COL, TYPE, PLAYER}, NEWTAB, NEWTAB2).
+
+moveAux({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB2):-
+        moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB2, _).
+
+moveAuxRec(_,_,[],[],4).
+
+moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, [H|T], NEWTAB2, L):-
+        moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, T, NEWTAB3, L2),
+        L is L2-1,
+        moveAuxRecRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, H, NEWTAB4, L2, _),
+        append([NEWTAB4], NEWTAB3, NEWTAB2).
+
+moveAuxRecRec(_,_,[],[],_,4).
+
+moveAuxRecRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, [H|T], NEWTAB, L, C):-
+        moveAuxRecRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, T, NEWTAB2, L, C2),
+        C is C2-1,
+        moveAuxRecRecSet({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, L, C2, H, NEWTAB3),
+        append([NEWTAB3], NEWTAB2, NEWTAB).
+
+moveAuxRecRecSet(_,_,_,_,H,H).
+
+moveAuxRecRecSet({_, _, TYPE, PLAYER}, {LINEEND,COLEND}, L, C, {}, {LINEEND, COLEND, TYPE, PLAYER}):-
+        L=LINEEND,
+        C=COLEND. 
+
+erasePiece(_,L,L).
+
+erasePiece(_,[],[]).
+
+erasePiece({LINE, COL, TYPE, PLAYER}, [H|T], NEWTAB):-
+        erasePiece({LINE, COL, TYPE, PLAYER}, T, NEWTAB2),
+        erasePieceRec({LINE, COL, TYPE, PLAYER}, H, NEWPIECE),
+        append([NEWPIECE], NEWTAB2, NEWTAB).
+
+
+erasePieceRec(_, [], []).
+
+erasePieceRec({LINE, COL, TYPE, PLAYER}, [H|T], NEWTAB):-
+        erasePieceRec({LINE, COL, TYPE, PLAYER}, T, NEWTAB2),
+        erasePieceSet({LINE, COL, TYPE, PLAYER}, H, NEWPIECE),
+        append([NEWPIECE], NEWTAB2, NEWTAB).
+
+erasePieceSet(_, H, H).
+
+erasePieceSet({LINE, COL, _, _}, {LINEEND, COLEND, TYPE, PLAYER},{LINE,COL,none,none}):-
+        LINE=LINEEND,
+        COL=COLEND.
+
 
 gameChoice(_, TAB, PLAYER):-
         write('Choose a valid option!').
