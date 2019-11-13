@@ -4,7 +4,11 @@
 clearScreen:-
         write('\16\.'),nl.
 
-display_game(TAB, PLAYER, pvp):-
+display_game(PLAYER, win):-
+	print(PLAYER),
+	write(' : WIN').
+
+display_game(TAB, PLAYER, pvp, cont):-
         repeat,
         printBoard(TAB),
         nl, write(' PLAYER '), write(PLAYER),write(' - '),
@@ -18,18 +22,11 @@ display_game(TAB, PLAYER, pvp):-
 
 gameChoice(1, TAB, black):-
 	placePiece(TAB, black, NEWTAB),
-        blackWin(NEWTAB) + whiteWin(NEWTAB) ->
-                play 
-        ;
-                display_game(NEWTAB, white, pvp).
-
+	blackWin(NEWTAB, WIN).
 
 gameChoice(1, TAB, white):-
 	placePiece(TAB, white, NEWTAB),
-        blackWin(NEWTAB) + whiteWin(NEWTAB) ->
-                play 
-        ;
-                display_game(NEWTAB, black, pvp).
+	whiteWin(NEWTAB, WIN).
 
 placePiece(TAB,PLAYER, NEWTAB):-
         write('Choose an option!'), nl,
@@ -69,42 +66,43 @@ putPiece(TYPE, TAB, PLAYER):-
 
 gameChoice(2, TAB, black):-
         choosePiece(TAB, {LINE, COL, TYPE, black}),
-        movePiece(TAB, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB),
-        blackWin(NEWTAB) + whiteWin(NEWTAB) ->
-                play 
-        ;
-                display_game(NEWTAB, white, pvp).
+        movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB),
+	blackWin(NEWTAB, WIN).
 
 gameChoice(2, TAB, white):-
         choosePiece(TAB, {LINE, COL, TYPE, white}),
-        movePiece(TAB, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB),
-        blackWin(NEWTAB) + whiteWin(NEWTAB) ->
-                play 
-        ;
-                display_game(NEWTAB, black, pvp).
+        movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB),
+	whiteWin(NEWTAB, WIN).
 
-blackWin(TAB):-
+blackWin(TAB, WIN):-
         getWhiteKingPos({PL,PC,kingW,white}, TAB),
         FRONT is PL-1,
-        \+verifyEndPosition(TAB,FRONT,PC,{PL, PC, kingW,white},WIN,NEWTAB),
+        \+verifyEndPosition(TAB,FRONT,PC,{PL, PC, kingW,white},NEWTAB),
         BACK is PL+1,
-        \+verifyEndPosition(TAB,BACK,PC,{PL, PC, kingW,white},WIN,NEWTAB),
+        \+verifyEndPosition(TAB,BACK,PC,{PL, PC, kingW,white},NEWTAB),
         RIGHT is PC+1,
-        \+verifyEndPosition(TAB,PL,RIGHT,{PL, PC, kingW,white},WIN,NEWTAB),
+        \+verifyEndPosition(TAB,PL,RIGHT,{PL, PC, kingW,white},NEWTAB),
         LEFT is PC-1,
-        \+verifyEndPosition(TAB,PL,LEFT,{PL, PC, kingW,white},WIN,NEWTAB).
+        \+verifyEndPosition(TAB,PL,LEFT,{PL, PC, kingW,white},NEWTAB),
+	display_game(black, win).
 
-whiteWin(TAB):-
+blackWin(TAB, WIN):-
+	display_game(TAB, white, pvp, cont).
+
+whiteWin(TAB, WIN):-
         getBlackKingPos({PL,PC,kingB,black}, TAB),
         FRONT is PL-1,
-        \+verifyEndPosition(TAB,FRONT,PC,{PL,PC,kingB,black},WIN,NEWTAB),
+        \+verifyEndPosition(TAB,FRONT,PC,{PL,PC,kingB,black},NEWTAB),
         BACK is PL+1,
-        \+verifyEndPosition(TAB,BACK,PC,{PL,PC,kingB,black},WIN,NEWTAB),
+        \+verifyEndPosition(TAB,BACK,PC,{PL,PC,kingB,black},NEWTAB),
         RIGHT is PC+1,
-        \+verifyEndPosition(TAB,PL,RIGHT,{PL,PC,kingB,black},WIN,NEWTAB),
+        \+verifyEndPosition(TAB,PL,RIGHT,{PL,PC,kingB,black},NEWTAB),
         LEFT is PC-1,
-        \+verifyEndPosition(TAB,PL,LEFT,{PL,PC,kingB,black},WIN,NEWTAB).
+        \+verifyEndPosition(TAB,PL,LEFT,{PL,PC,kingB,black},NEWTAB),
+	display_game(white, win).
 
+whiteWin(TAB, WIN):-
+	display_game(TAB, black, pvp, cont).
 
 getWhiteKingPos({PL,PC,kingW,white}, Xss) :-
    member(Xs, Xss),
@@ -114,12 +112,12 @@ getBlackKingPos({PL,PC,kingB,black}, Xss) :-
    member(Xs, Xss),
    member({PL,PC,kingB,black}, Xs).
 
-movePiece(TAB, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB):-
+movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB):-
         write(' Select Destination (Row/Column): '),
         read(LINEEND/COLEND),
-        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},WIN,NEWTAB).
+        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB).
 
-verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},WIN,NEWTAB):-
+verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB):-
         verifyMoveInsideBoard(LINEEND, COLEND),
         verifyNotPiece(TAB, {LINEEND, COLEND, TYPE, PLAYER}),
         verifyMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}),
@@ -434,7 +432,7 @@ selectGameMode:-
 
 gameMode(1):-
         board(TAB),
-        display_game(TAB, white, pvp).
+        display_game(TAB, white, pvp, cont).
 
 gameMode(2):-
         write('Em desenvolvimento').
