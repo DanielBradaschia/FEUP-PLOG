@@ -73,43 +73,34 @@ verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},WIN,NEWTAB):-
 
 executeMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB):-
         moveAux({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB2),
-        printBoard(TAB),
-        printBoard(NEWTAB2),
-        erasePiece({LINE, COL, TYPE, PLAYER}, NEWTAB, NEWTAB2).
+        erasePiece({LINE, COL, TYPE, PLAYER}, NEWTAB2, NEWTAB).
 
-moveAux({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB2):-
-        moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB2, _).
+moveAux(_,_,[],[]).
 
-moveAuxRec(_,_,[],[],4).
+moveAux({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, [H|T], NEWTAB):-
+	moveAux({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, T, NEWTAB2),
+	moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, H, NEWTAB3),
+	append([NEWTAB3], NEWTAB2, NEWTAB).
 
-moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, [H|T], NEWTAB2, L):-
-        moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, T, NEWTAB3, L2),
-        L is L2-1,
-        moveAuxRecRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, H, NEWTAB4, L2, _),
-        append([NEWTAB4], NEWTAB3, NEWTAB2).
+moveAuxRec(_,_,[],[]).
 
-moveAuxRecRec(_,_,[],[],_,4).
+moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, [H|T], NEWTAB):-
+	moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, T, NEWTAB2),
+	moveAuxSet({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, H, NEWPIECE),
+	append([NEWPIECE], NEWTAB2, NEWTAB).
 
-moveAuxRecRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, [H|T], NEWTAB, L, C):-
-        moveAuxRecRec({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, T, NEWTAB2, L, C2),
-        C is C2-1,
-        moveAuxRecRecSet({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, L, C2, H, NEWTAB3),
-        append([NEWTAB3], NEWTAB2, NEWTAB).
+moveAuxSet({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, {LPOS, CPOS, none, none} , {LPOS, CPOS, TYPE, PLAYER}):-
+	LPOS=LINEEND,
+	CPOS=COLEND.
 
-moveAuxRecRecSet(_,_,_,_,H,H).
-
-moveAuxRecRecSet({_, _, TYPE, PLAYER}, {LINEEND,COLEND}, L, C, {}, {LINEEND, COLEND, TYPE, PLAYER}):-
-        L=LINEEND,
-        C=COLEND. 
-
-erasePiece(_,L,L).
+moveAuxSet(_,_,H,H).	
 
 erasePiece(_,[],[]).
 
 erasePiece({LINE, COL, TYPE, PLAYER}, [H|T], NEWTAB):-
         erasePiece({LINE, COL, TYPE, PLAYER}, T, NEWTAB2),
-        erasePieceRec({LINE, COL, TYPE, PLAYER}, H, NEWPIECE),
-        append([NEWPIECE], NEWTAB2, NEWTAB).
+        erasePieceRec({LINE, COL, TYPE, PLAYER}, H, NEWTAB3),
+        append([NEWTAB3], NEWTAB2, NEWTAB).
 
 
 erasePieceRec(_, [], []).
@@ -119,11 +110,11 @@ erasePieceRec({LINE, COL, TYPE, PLAYER}, [H|T], NEWTAB):-
         erasePieceSet({LINE, COL, TYPE, PLAYER}, H, NEWPIECE),
         append([NEWPIECE], NEWTAB2, NEWTAB).
 
-erasePieceSet(_, H, H).
+erasePieceSet({LINE, COL, TYPE, PLAYER}, {LPOS, CPOS, TYPE, PLAYER},{LPOS,CPOS,none,none}):-
+        LPOS=LINE,
+        CPOS=COL.
 
-erasePieceSet({LINE, COL, _, _}, {LINEEND, COLEND, TYPE, PLAYER},{LINE,COL,none,none}):-
-        LINE=LINEEND,
-        COL=COLEND.
+erasePieceSet(_, H, H).
 
 
 gameChoice(_, TAB, PLAYER):-
@@ -189,8 +180,7 @@ translate(5, black, S):- S='horseB'.
 
 printBoard(TAB):-
 	printSeparatorIndex, nl,
-	printSeparatorLINE,
-	board(TAB), nl,
+	printSeparatorLINE, nl,
         printMatrix(TAB, 1),
 	printSeparatorLINE.
 	
