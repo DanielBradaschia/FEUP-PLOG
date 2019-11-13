@@ -12,12 +12,19 @@ display_game(TAB, PLAYER, pvp):-
         write('1. Put Piece on Board'), nl,
         write('2. Move Piece'), nl,
         read(Action),
+        Action > 0,
+        Action < 3,
         gameChoice(Action, TAB, PLAYER).
 
-gameChoice(1, TAB, PLAYER):-
-	placePiece(TAB, PLAYER).
+gameChoice(1, TAB, black):-
+	placePiece(TAB, black, NEWTAB),
+        display_game(NEWTAB, white, pvp).
 
-placePiece(TAB,PLAYER):-
+gameChoice(1, TAB, white):-
+	placePiece(TAB, white, NEWTAB),
+        display_game(NEWTAB, black, pvp).
+
+placePiece(TAB,PLAYER, NEWTAB):-
         write('Choose an option!'), nl,
         write('1. Queen'), nl,
         write('2. Bishop'), nl,
@@ -25,9 +32,11 @@ placePiece(TAB,PLAYER):-
         write('4. Horse'), nl,
         write('5. Pawn'), nl,
         read(Action),
+        Action > 0,
+        Action < 6,
         translate(Action,PLAYER,TYPE),
 	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}),
-        putPiece(TYPE, TAB, PLAYER).
+        putPiece(TYPE, TAB, PLAYER, NEWTAB).
 
 /*Ve peca repetida*/
 verifyPlace(TAB, {LINE, COL, TYPE, PLAYER}):-
@@ -37,13 +46,14 @@ verifyPlace(TAB, {LINE, COL, TYPE, PLAYER}):-
 verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}):-
 	clearScreen, printBoard(TAB),
         nl, write('Invalid Option. Try again!'), nl,
-        placePiece(TAB,PLAYER).
+        placePiece(TAB,PLAYER,NEWTAB).
 
-putPiece(TYPE, TAB, PLAYER):-
+putPiece(TYPE, TAB, PLAYER, NEWTAB):-
         write(' Select Place (Row/Column) to put in: '),
         read(LINE/COL),
         verifyMoveInsideBoard(LINE, COL),
-        verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}).
+        verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}),
+        replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB).
 
 putPiece(TYPE, TAB, PLAYER):-
 	clearScreen, printBoard(TAB),
@@ -151,6 +161,16 @@ board(
 [{4,1,none,none}, {4,2,none,none}, {4,3,none,none}, {4,4,none,none}]
 ]
 ).
+
+replace(TAB, L, C, {LINE, COL, TYPE, PLAYER}, NEWTAB) :-
+        I is L-1,
+        J is C-1,
+        append(RowPfx,[Row|RowSfx],TAB),    
+        length(RowPfx,I),                 
+        append(ColPfx,[_|ColSfx],Row),    
+        length(ColPfx,J),                 
+        append(ColPfx,[{LINE, COL, TYPE, PLAYER}|ColSfx],RowNew), 
+        append(RowPfx,[RowNew|RowSfx],NEWTAB).
 
 translate({_,_,none, none},S) :- S='  '.
 translate({_,_,kingB, black},S) :- S='kB'.
