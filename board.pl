@@ -18,11 +18,18 @@ display_game(TAB, PLAYER, pvp):-
 
 gameChoice(1, TAB, black):-
 	placePiece(TAB, black, NEWTAB),
-        display_game(NEWTAB, white, pvp).
+        blackWin(NEWTAB) + whiteWin(NEWTAB) ->
+                play 
+        ;
+                display_game(NEWTAB, white, pvp).
+
 
 gameChoice(1, TAB, white):-
 	placePiece(TAB, white, NEWTAB),
-        display_game(NEWTAB, black, pvp).
+        blackWin(NEWTAB) + whiteWin(NEWTAB) ->
+                play 
+        ;
+                display_game(NEWTAB, black, pvp).
 
 placePiece(TAB,PLAYER, NEWTAB):-
         write('Choose an option!'), nl,
@@ -63,12 +70,49 @@ putPiece(TYPE, TAB, PLAYER):-
 gameChoice(2, TAB, black):-
         choosePiece(TAB, {LINE, COL, TYPE, black}),
         movePiece(TAB, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB),
-        display_game(NEWTAB, white, pvp).
+        blackWin(NEWTAB) + whiteWin(NEWTAB) ->
+                play 
+        ;
+                display_game(NEWTAB, white, pvp).
 
 gameChoice(2, TAB, white):-
         choosePiece(TAB, {LINE, COL, TYPE, white}),
         movePiece(TAB, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB),
-        display_game(NEWTAB, black, pvp).
+        blackWin(NEWTAB) + whiteWin(NEWTAB) ->
+                play 
+        ;
+                display_game(NEWTAB, black, pvp).
+
+blackWin(TAB):-
+        getWhiteKingPos({PL,PC,kingW,white}, TAB),
+        FRONT is PL-1,
+        \+verifyEndPosition(TAB,FRONT,PC,{PL, PC, kingW,white},WIN,NEWTAB),
+        BACK is PL+1,
+        \+verifyEndPosition(TAB,BACK,PC,{PL, PC, kingW,white},WIN,NEWTAB),
+        RIGHT is PC+1,
+        \+verifyEndPosition(TAB,PL,RIGHT,{PL, PC, kingW,white},WIN,NEWTAB),
+        LEFT is PC-1,
+        \+verifyEndPosition(TAB,PL,LEFT,{PL, PC, kingW,white},WIN,NEWTAB).
+
+whiteWin(TAB):-
+        getBlackKingPos({PL,PC,kingB,black}, TAB),
+        FRONT is PL-1,
+        \+verifyEndPosition(TAB,FRONT,PC,{PL,PC,kingB,black},WIN,NEWTAB),
+        BACK is PL+1,
+        \+verifyEndPosition(TAB,BACK,PC,{PL,PC,kingB,black},WIN,NEWTAB),
+        RIGHT is PC+1,
+        \+verifyEndPosition(TAB,PL,RIGHT,{PL,PC,kingB,black},WIN,NEWTAB),
+        LEFT is PC-1,
+        \+verifyEndPosition(TAB,PL,LEFT,{PL,PC,kingB,black},WIN,NEWTAB).
+
+
+getWhiteKingPos({PL,PC,kingW,white}, Xss) :-
+   member(Xs, Xss),
+   member({PL,PC,kingW,white}, Xs).
+
+getBlackKingPos({PL,PC,kingB,black}, Xss) :-
+   member(Xs, Xss),
+   member({PL,PC,kingB,black}, Xs).
 
 movePiece(TAB, {LINE, COL, TYPE, PLAYER}, WIN, NEWTAB):-
         write(' Select Destination (Row/Column): '),
