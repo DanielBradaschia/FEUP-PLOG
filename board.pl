@@ -10,16 +10,67 @@ display_game(TAB, PLAYER, win):-
 	write(' : WIN').
 
 display_game(TAB, PLAYER, pvp, cont):-
-        repeat,
-        printBoard(TAB),
-        nl, write(' PLAYER '), write(PLAYER),write(' - '),
-        write('Choose an option!'), nl,
-        write('1. Put Piece on Board'), nl,
-        write('2. Move Piece'), nl,
-        read(Action),
-        Action > 0,
-        Action < 3,
-        gameChoice(Action, TAB, PLAYER).
+        (
+                
+                isTowerOnBoard(PLAYER, TAB)
+                ->
+                        repeat,
+                        printBoard(TAB),
+                        nl, write(' PLAYER '), write(PLAYER),write(' - '),
+                        write('Choose an option!'), nl,
+                        write('1. Put Piece on Board'), nl,
+                        write('2. Move Piece'), nl,
+                        write('3. Swap Tower and King'),
+                        read(Action),
+                        Action > 0,
+                        Action < 4,
+                        gameChoice(Action, TAB, PLAYER)
+                ;
+                repeat,
+                printBoard(TAB),
+                nl, write(' PLAYER '), write(PLAYER),write(' - '),
+                write('Choose an option!'), nl,
+                write('1. Put Piece on Board'), nl,
+                write('2. Move Piece'), nl,
+                read(Action),
+                Action > 0,
+                Action < 3,
+                gameChoice(Action, TAB, PLAYER)
+        ).
+        
+
+gameChoice(3, TAB, white):-
+        getWhiteTowerPos({TL,TC, towerW,white}, TAB),
+        getWhiteKingPos({KL,KC, kingW,white}, TAB),
+        replace(TAB, TL, TC, {TL, TC, kingW, white}, NEWTAB),
+        replace(NEWTAB, KL, KC, {KL, KC, towerW, white}, NEWTAB2),
+        display_game(NEWTAB2, black, pvp, cont).
+
+gameChoice(3, TAB, black):-
+        getBlackTowerPos({TL,TC, towerB,black}, TAB),
+        getBlackKingPos({KL,KC, kingB,black}, TAB),
+        replace(TAB, TL, TC, {TL, TC, kingB, black}, NEWTAB),
+        replace(NEWTAB, KL, KC, {KL, KC, towerB, black}, NEWTAB2),
+        display_game(NEWTAB2, white, pvp, cont).
+
+isTowerOnBoard(white, TAB):-
+        memberlists({_,_, towerW,white}, TAB).        
+
+isTowerOnBoard(black, TAB):-
+        memberlists({_,_, towerB,black}, TAB).
+
+memberlists(X, Xss):-
+        member(Xs, Xss),
+        member(X, Xs).
+
+getWhiteTowerPos({PL,PC, towerW,white}, Xss) :-
+   member(Xs, Xss),
+   member({PL,PC,towerW,white}, Xs).
+
+getBlackTowerPos({PL,PC,towerB,black}, Xss) :-
+   member(Xs, Xss),
+   member({PL,PC,towerB,black}, Xs).
+
 
 gameChoice(1, TAB, black):-
 	placePiece(TAB, black, NEWTAB),
@@ -29,7 +80,7 @@ gameChoice(1, TAB, white):-
 	placePiece(TAB, white, NEWTAB),
 	whiteWin(NEWTAB, WIN).
 
-placePiece(TAB,PLAYER, NEWTAB):-
+placePiece(TAB, PLAYER, NEWTAB):-
         write('Choose an option!'), nl,
         write('1. Queen'), nl,
         write('2. Bishop'), nl,
@@ -489,9 +540,6 @@ gameMode(5):-
         write(' |-----------------------------------------------------| '), nl,
         nl,
         nl.
-
-gameMode(_):-
-        write('Introduza uma opcao valida').
 
 printMainMenu:-
         nl, nl, nl,
