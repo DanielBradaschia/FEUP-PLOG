@@ -76,18 +76,6 @@ gameChoice(2, TAB, white):-
         movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB),
 	whiteWin(NEWTAB, WIN).
 
-blackWin(TAB, WIN):-
-        getWhiteKingPos({PL,PC,kingW,white}, TAB),
-        FRONT is PL-1,
-        \+verifyEndPosition(TAB,FRONT,PC,{PL, PC, kingW,white},NEWTAB),
-        BACK is PL+1,
-        \+verifyEndPosition(TAB,BACK,PC,{PL, PC, kingW,white},NEWTAB),
-        RIGHT is PC+1,
-        \+verifyEndPosition(TAB,PL,RIGHT,{PL, PC, kingW,white},NEWTAB),
-        LEFT is PC-1,
-        \+verifyEndPosition(TAB,PL,LEFT,{PL, PC, kingW,white},NEWTAB),
-	display_game(black, win).
-
 verifyKingDist(TAB, {LINE, COL, TYPE, white}):-
         getBlackKingPos({PL,PC,kingB,black}, TAB),
         AUXLINE is abs(LINE-PL),
@@ -103,6 +91,18 @@ verifyKingDist(TAB, {LINE, COL, TYPE, black}):-
         AUX>=2.
 
 blackWin(TAB, WIN):-
+        getWhiteKingPos({PL,PC,kingW,white}, TAB),
+        FRONT is PL-1,
+        \+verifyEndPosition(TAB,FRONT,PC,{PL, PC, kingW,white},NEWTAB),
+        BACK is PL+1,
+        \+verifyEndPosition(TAB,BACK,PC,{PL, PC, kingW,white},NEWTAB),
+        RIGHT is PC+1,
+        \+verifyEndPosition(TAB,PL,RIGHT,{PL, PC, kingW,white},NEWTAB),
+        LEFT is PC-1,
+        \+verifyEndPosition(TAB,PL,LEFT,{PL, PC, kingW,white},NEWTAB),
+	display_game(TAB, black, win).
+
+blackWin(TAB, WIN):-
         getBlackKingPos({PL,PC,kingB,black}, TAB),
         FRONT is PL-1,
         \+verifyEndPosition(TAB,FRONT,PC,{PL,PC,kingB,black},NEWTAB),
@@ -112,7 +112,7 @@ blackWin(TAB, WIN):-
         \+verifyEndPosition(TAB,PL,RIGHT,{PL,PC,kingB,black},NEWTAB),
         LEFT is PC-1,
         \+verifyEndPosition(TAB,PL,LEFT,{PL,PC,kingB,black},NEWTAB),
-	display_game(white, win).
+	display_game(TAB, white, win).
 
 blackWin(TAB, WIN):-
 	display_game(TAB, white, pvp, cont).
@@ -127,7 +127,7 @@ whiteWin(TAB, WIN):-
         \+verifyEndPosition(TAB,PL,RIGHT,{PL,PC,kingB,black},NEWTAB),
         LEFT is PC-1,
         \+verifyEndPosition(TAB,PL,LEFT,{PL,PC,kingB,black},NEWTAB),
-	display_game(white, win).
+	display_game(TAB, white, win).
 
 whiteWin(TAB, WIN):-
         getWhiteKingPos({PL,PC,kingW,white}, TAB),
@@ -139,7 +139,7 @@ whiteWin(TAB, WIN):-
         \+verifyEndPosition(TAB,PL,RIGHT,{PL, PC, kingW,white},NEWTAB),
         LEFT is PC-1,
         \+verifyEndPosition(TAB,PL,LEFT,{PL, PC, kingW,white},NEWTAB),
-	display_game(black, win).
+	display_game(TAB, black, win).
 
 whiteWin(TAB, WIN):-
 	display_game(TAB, black, pvp, cont).
