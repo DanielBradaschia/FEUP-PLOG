@@ -432,17 +432,17 @@ validateMoveHorse(AX,AY):-AX=2,AY=1.
 /*Pawn Movement*/
 verifyMovePawn(LINE, COL, LINE_END, COL_END):-
         verifyMoveVertHor(LINE, COL, LINE_END, COL_END),
-        AX is COL_END-COL,
-        AY is LINE_END-LINE,
+        AX is abs(COL-COL_END),
+        AY is LINE-LINE_END,
         validatePawnVertHor(AX,AY).
 
 verifyMovePawn(LINE, COL, LINE_END, COL_END):-
         verifyMoveDiag(LINE, COL, LINE_END, COL_END),
-        AX is COL_END-COL,
-        AY is LINE_END-LINE,
+        AX is abs(COL-COL_END),
+        AY is LINE-LINE_END,
         validatePawnDiag(AX,AY).
 
-validatePawnVertHor(AX,AY):-AX=1,AY=0.
+validatePawnVertHor(AX,AY):-AX=0,AY=1.
 
 validatePawnDiag(AX,AX):-AX=1.
 
