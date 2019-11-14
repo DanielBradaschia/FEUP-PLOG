@@ -64,11 +64,11 @@ display_game(TAB, PLAYER, cvc):-
         ).
 
 gameChoice(1, TAB, black, pvp):-
-	placePiece(TAB, black, NEWTAB),
+	placePiece(TAB, black, NEWTAB, pvp),
 	game_over(NEWTAB, WIN, black, pvp).
 
 gameChoice(1, TAB, white, pvp):-
-	placePiece(TAB, white, NEWTAB),
+	placePiece(TAB, white, NEWTAB, pvp),
 	game_over(NEWTAB, WIN, white, pvp).
 
 gameChoice(1, TAB, black, cvc):-
@@ -145,7 +145,7 @@ placePiece(TAB, PLAYER, NEWTAB, pvp):-
         putPiece(TYPE, TAB, PLAYER, NEWTAB).
 
 placePiece(TAB, PLAYER, NEWTAB, cvc):-
-        random(1,7, Action),
+        random(1,6, Action),
         translate(Action,PLAYER,TYPE),
 	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}, cvc),
         putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc).
