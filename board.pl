@@ -20,7 +20,7 @@ display_game(TAB, PLAYER, pvp, cont):-
                         write('Choose an option!'), nl,
                         write('1. Put Piece on Board'), nl,
                         write('2. Move Piece'), nl,
-                        write('3. Swap Tower and King'),
+                        write('3. Swap Tower and King'), nl,
                         read(Action),
                         Action > 0,
                         Action < 4,
@@ -532,7 +532,25 @@ gameMode(3):-
         write('Em desenvolvimento').
 
 gameMode(4):-
-        write('Em desenvolvimento').
+        nl, nl, nl,
+        write(' _______________________________________________________ '), nl,
+        write(' |                                                     | '), nl,
+        write(' |                    HOW TO PLAY                      | '), nl,
+        write(' |                                                     | '), nl,
+        write(' |     Objective:                                      | '), nl,
+        write(' |        Surround the cardinal points of              | '), nl,
+        write(' |        the enemy king, while protecting             | '), nl,
+        write(' |        your own!!!                                  | '), nl,
+        write(' |                                                     | '), nl,
+        write(' |                                                     | '), nl,
+        write(' |     Rules:                                          | '), nl,
+        write(' |        Select the options as they are presented,    | '), nl,
+        write(' |        each piece has the traditional movement      | '), nl,
+        write(' |        of chess, however under special              | '), nl,
+        write(' |        circumstances a new option might appear!     | '), nl,
+        write(' |                                                     | '), nl,
+        write(' |_____________________________________________________| '), nl,
+        play.
 
 gameMode(5):-
         write(' |-----------------------------------------------------| '), nl,
