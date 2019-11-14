@@ -7,8 +7,7 @@ clearScreen:-
 display_game(TAB, PLAYER, win):-
 	printBoard(TAB),
 	nl , print(PLAYER), 
-	write(' : WIN'),
-        play.
+	write(' : WIN').
 
 display_game(TAB, PLAYER, pvp):-
         (
@@ -31,7 +30,7 @@ display_game(TAB, PLAYER, pvp):-
                 repeat,
                 printBoard(TAB),
                 
-                nl, write(' PLAYER '), write(PLAYER),write(' - '),
+                nl, write(' PLAYER '), write(PLAYER),write(' - '),nl,
                 write('Choose an option!'), nl,
                 write('1. Put Piece on Board'), nl,
                 write('2. Move Piece'), nl,
@@ -51,9 +50,9 @@ display_game(TAB, PLAYER, cvc):-
                         repeat,
                         printBoard(TAB),
                         
-                        nl, write(' PLAYER '), write(PLAYER),write(' - '),
+                        nl, write(' PLAYER '), write(PLAYER),write(' - '),nl,
                 	random(1,4,Action),
-                        gameChoice(Action, TAB, PLAYER, pvp)
+                        gameChoice(Action, TAB, PLAYER, cvc)
                 ;
                 repeat,
 		printBoard(TAB),
@@ -96,7 +95,7 @@ placePiece(TAB, PLAYER, NEWTAB, pvp):-
         putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp).
 
 placePiece(TAB, PLAYER, NEWTAB, cvc):-
-        random(1,6, Action),
+        random(1,7, Action),
         translate(Action,PLAYER,TYPE,TAB,cvc),
 	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}, cvc),
         putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc).
