@@ -58,12 +58,13 @@ putPiece(TYPE, TAB, PLAYER, NEWTAB):-
         read(LINE/COL),
         verifyMoveInsideBoard(LINE, COL),
         verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}),
+        verifyKingDist(TAB, {LINE, COL, TYPE, PLAYER}),
         replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB).
 
-putPiece(TYPE, TAB, PLAYER):-
+putPiece(TYPE, TAB, PLAYER, NEWTAB):-
 	clearScreen, printBoard(TAB),
         nl, write('Invalid Position. Try again!'), nl,
-        putPiece(TYPE, TAB,PLAYER).
+        putPiece(TYPE, TAB, PLAYER, NEWTAB).
 
 gameChoice(2, TAB, black):-
         choosePiece(TAB, {LINE, COL, TYPE, black}),
@@ -86,6 +87,20 @@ blackWin(TAB, WIN):-
         LEFT is PC-1,
         \+verifyEndPosition(TAB,PL,LEFT,{PL, PC, kingW,white},NEWTAB),
 	display_game(black, win).
+
+verifyKingDist(TAB, {LINE, COL, TYPE, white}):-
+        getBlackKingPos({PL,PC,kingB,black}, TAB),
+        AUXLINE is abs(LINE-PL),
+        AUXCOL is abs(COL-PC),
+        AUX is AUXLINE+AUXCOL,
+        AUX>=2.
+
+verifyKingDist(TAB, {LINE, COL, TYPE, black}):-
+        getWhiteKingPos({PL,PC,kingW,white}, TAB),
+        AUXLINE is abs(LINE-PL),
+        AUXCOL is abs(COL-PC),
+        AUX is AUXLINE+AUXCOL,
+        AUX>=2.
 
 blackWin(TAB, WIN):-
         getBlackKingPos({PL,PC,kingB,black}, TAB),
