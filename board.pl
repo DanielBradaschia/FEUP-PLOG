@@ -45,6 +45,17 @@ display_game(TAB, PLAYER, pvp):-
 display_game(TAB, PLAYER, cvc):-
         (	
 		sleep(1),
+
+		isTowerOnBoard(PLAYER, TAB)
+                ->
+                        repeat,
+                        printBoard(TAB),
+                        
+                        nl, write(' PLAYER '), write(PLAYER),write(' - '),
+                	random(1,4,Action),
+                        gameChoice(Action, TAB, PLAYER, pvp)
+                ;
+                repeat,
 		printBoard(TAB),
                 nl, write(' PLAYER '), write(PLAYER),nl,
 
