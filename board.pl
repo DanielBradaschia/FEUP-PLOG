@@ -9,7 +9,7 @@ display_game(TAB, PLAYER, win):-
 	nl , print(PLAYER), 
 	write(' : WIN').
 
-display_game(TAB, PLAYER, pvp, cont):-
+display_game(TAB, PLAYER, pvp):-
         (
                 
                 isTowerOnBoard(PLAYER, TAB)
@@ -44,14 +44,14 @@ gameChoice(3, TAB, white):-
         getWhiteKingPos({KL,KC, kingW,white}, TAB),
         replace(TAB, TL, TC, {TL, TC, kingW, white}, NEWTAB),
         replace(NEWTAB, KL, KC, {KL, KC, towerW, white}, NEWTAB2),
-        display_game(NEWTAB2, black, pvp, cont).
+        display_game(NEWTAB2, black, pvp).
 
 gameChoice(3, TAB, black):-
         getBlackTowerPos({TL,TC, towerB,black}, TAB),
         getBlackKingPos({KL,KC, kingB,black}, TAB),
         replace(TAB, TL, TC, {TL, TC, kingB, black}, NEWTAB),
         replace(NEWTAB, KL, KC, {KL, KC, towerB, black}, NEWTAB2),
-        display_game(NEWTAB2, white, pvp, cont).
+        display_game(NEWTAB2, white, pvp).
 
 isTowerOnBoard(white, TAB):-
         memberlists({_,_, towerW,white}, TAB).        
@@ -166,7 +166,7 @@ blackWin(TAB, WIN):-
 	display_game(TAB, white, win).
 
 blackWin(TAB, WIN):-
-	display_game(TAB, white, pvp, cont).
+	display_game(TAB, white, pvp).
 
 whiteWin(TAB, WIN):-
         getBlackKingPos({PL,PC,kingB,black}, TAB),
@@ -193,7 +193,7 @@ whiteWin(TAB, WIN):-
 	display_game(TAB, black, win).
 
 whiteWin(TAB, WIN):-
-	display_game(TAB, black, pvp, cont).
+	display_game(TAB, black, pvp).
 
 getWhiteKingPos({PL,PC,kingW,white}, Xss) :-
    member(Xs, Xss),
@@ -523,7 +523,7 @@ selectGameMode:-
 
 gameMode(1):-
         board(TAB),
-        display_game(TAB, white, pvp, cont).
+        display_game(TAB, white, pvp).
 
 gameMode(2):-
         write('Em desenvolvimento').
