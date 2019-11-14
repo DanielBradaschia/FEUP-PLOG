@@ -91,14 +91,13 @@ placePiece(TAB, PLAYER, NEWTAB, pvp):-
         read(Action),
         Action > 0,
         Action < 7,
-        Action =:= 6 -> display_game(TAB, PLAYER, pvp);
-        translate(Action,PLAYER,TYPE),
+        translate(Action,PLAYER,TYPE,TAB,pvp),
 	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}, pvp),
         putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp).
 
 placePiece(TAB, PLAYER, NEWTAB, cvc):-
         random(1,6, Action),
-        translate(Action,PLAYER,TYPE),
+        translate(Action,PLAYER,TYPE,TAB,cvc),
 	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}, cvc),
         putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc).
 
@@ -507,17 +506,12 @@ translate({_,_,horse, white},S) :- S='hW'.
 translate({_,_,pawn, black},S) :- S='pB'.
 translate({_,_,pawn, white},S) :- S='pW'.
 
-translate(1, white, S):- S='queen'.
-translate(2, white, S):- S='bishop'.
-translate(3, white, S):- S='tower'.
-translate(4, white, S):- S='horse'.
-translate(5, white, S):- S='pawn'.
-
-translate(1, black, S):- S='queen'.
-translate(2, black, S):- S='bishop'.
-translate(3, black, S):- S='tower'.
-translate(4, black, S):- S='horse'.
-translate(5, black, S):- S='pawn'.
+translate(1, PLAYER, S, TAB, STATE):- S='queen'.
+translate(2, PLAYER, S, TAB, STATE):- S='bishop'.
+translate(3, PLAYER, S, TAB, STATE):- S='tower'.
+translate(4, PLAYER, S, TAB, STATE):- S='horse'.
+translate(5, PLAYER, S, TAB, STATE):- S='pawn'.
+translate(6, PLAYER, S, TAB, STATE) :- display_game(TAB, PLAYER, STATE).
 
 
 /*Game Functions*/
