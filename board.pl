@@ -45,88 +45,29 @@ display_game(TAB, PLAYER, pvp):-
 display_game(TAB, PLAYER, cvc):-
         (	
 		sleep(1),
-                
-                isTowerOnBoard(PLAYER, TAB)
-                ->
-                        repeat,
-                        printBoard(TAB),
-                        
-                        nl, write(' PLAYER '), write(PLAYER),nl,
-                        random(1,4,Action),
-                        gameChoice(Action, TAB, PLAYER, cvc)
-                ;
-                repeat,
-                printBoard(TAB),
-                
+		printBoard(TAB),
                 nl, write(' PLAYER '), write(PLAYER),nl,
+
                 random(1,3,Action),
                 gameChoice(Action, TAB, PLAYER, cvc)
         ).
 
-gameChoice(1, TAB, black, pvp):-
-	placePiece(TAB, black, NEWTAB, pvp),
-	game_over(NEWTAB, WIN, black, pvp).
+gameChoice(1, TAB, PLAYER, STATE):-
+	placePiece(TAB, PLAYER, NEWTAB, STATE),
+	game_over(NEWTAB, WIN, PLAYER, STATE).
 
-gameChoice(1, TAB, white, pvp):-
-	placePiece(TAB, white, NEWTAB, pvp),
-	game_over(NEWTAB, WIN, white, pvp).
+gameChoice(2, TAB, PLAYER, STATE):-
+        choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, STATE),
+        movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, STATE),
+	game_over(NEWTAB, WIN, PLAYER, STATE).
 
-gameChoice(1, TAB, black, cvc):-
-        placePiece(TAB, black, NEWTAB, cvc),
-        game_over(NEWTAB, WIN, black, cvc).
+gameChoice(3, TAB, PLAYER, STATE):-
+        getTowerPos({TL,TC, tower,PLAYER}, TAB),
+        getKingPos({KL,KC, king,PLAYER}, TAB),
+        replace(TAB, TL, TC, {TL, TC, king, PLAYER}, NEWTAB),
+        replace(NEWTAB, KL, KC, {KL, KC, tower, PLAYER}, NEWTAB2),
+        display_game(NEWTAB2, PLAYER, STATE).
 
-gameChoice(1, TAB, white, cvc):-
-        placePiece(TAB, white, NEWTAB, cvc),
-        game_over(NEWTAB, WIN, white, cvc).
-
-gameChoice(2, TAB, black, pvp):-
-        choosePiece(TAB, {LINE, COL, TYPE, black}),
-        movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB),
-	game_over(NEWTAB, WIN, black, pvp).
-
-gameChoice(2, TAB, white, pvp):-
-        choosePiece(TAB, {LINE, COL, TYPE, white}),
-        movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB),
-	game_over(NEWTAB, WIN, white, pvp).
-
-gameChoice(2, TAB, black, cvc):-
-        choosePiece(TAB, {LINE, COL, TYPE, black}, cvc),
-        movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, cvc),
-	game_over(NEWTAB, WIN, black, cvc).
-
-gameChoice(2, TAB, white, cvc):-
-        choosePiece(TAB, {LINE, COL, TYPE, white}, cvc),
-        movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, cvc),
-	game_over(NEWTAB, WIN, white, cvc).
-
-gameChoice(3, TAB, white, pvp):-
-        getWhiteTowerPos({TL,TC, towerW,white}, TAB),
-        getWhiteKingPos({KL,KC, kingW,white}, TAB),
-        replace(TAB, TL, TC, {TL, TC, kingW, white}, NEWTAB),
-        replace(NEWTAB, KL, KC, {KL, KC, towerW, white}, NEWTAB2),
-        display_game(NEWTAB2, black, pvp).
-
-gameChoice(3, TAB, black, pvp):-
-        getBlackTowerPos({TL,TC, towerB,black}, TAB),
-        getBlackKingPos({KL,KC, kingB,black}, TAB),
-        replace(TAB, TL, TC, {TL, TC, kingB, black}, NEWTAB),
-        replace(NEWTAB, KL, KC, {KL, KC, towerB, black}, NEWTAB2),
-        display_game(NEWTAB2, white, pvp).
-
-gameChoice(3, TAB, white, cvc):-
-        getWhiteTowerPos({TL,TC, towerW,white}, TAB),
-        getWhiteKingPos({KL,KC, kingW,white}, TAB),
-        replace(TAB, TL, TC, {TL, TC, kingW, white}, NEWTAB),
-        replace(NEWTAB, KL, KC, {KL, KC, towerW, white}, NEWTAB2),
-        display_game(NEWTAB2, black, cvc).
-
-gameChoice(3, TAB, black, cvc):-
-	nl ,write('Computer used Tower Switch '), nl, nl,
-        getBlackTowerPos({TL,TC, towerB,black}, TAB),
-        getBlackKingPos({KL,KC, kingB,black}, TAB),
-        replace(TAB, TL, TC, {TL, TC, kingB, black}, NEWTAB),
-        replace(NEWTAB, KL, KC, {KL, KC, towerB, black}, NEWTAB2),
-        display_game(NEWTAB2, white, cvc).
 
 placePiece(TAB, PLAYER, NEWTAB, pvp):-
         write('Choose an option!'), nl,
@@ -141,8 +82,8 @@ placePiece(TAB, PLAYER, NEWTAB, pvp):-
         Action < 7,
         Action =:= 6 -> display_game(TAB, PLAYER, pvp);
         translate(Action,PLAYER,TYPE),
-	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}),
-        putPiece(TYPE, TAB, PLAYER, NEWTAB).
+	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}, pvp),
+        putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp).
 
 placePiece(TAB, PLAYER, NEWTAB, cvc):-
         random(1,6, Action),
@@ -299,60 +240,53 @@ replace(TAB, L, C, {LINE, COL, TYPE, PLAYER}, NEWTAB) :-
         append(ColPfx,[{LINE, COL, TYPE, PLAYER}|ColSfx],RowNew), 
         append(RowPfx,[RowNew|RowSfx],NEWTAB).
 
-isTowerOnBoard(white, TAB):-
-        memberlists({_,_, towerW,white}, TAB).        
-
-isTowerOnBoard(black, TAB):-
-        memberlists({_,_, towerB,black}, TAB).
+isTowerOnBoard(PLAYER, TAB):-
+        memberlists({_,_, tower,PLAYER}, TAB).        
 
 memberlists(X, Xss):-
         member(Xs, Xss),
         member(X, Xs).
 
-getWhiteTowerPos({PL,PC, towerW,white}, Xss) :-
+getTowerPos({PL,PC, tower,PLAYER}, Xss) :-
    member(Xs, Xss),
-   member({PL,PC,towerW,white}, Xs).
-
-getBlackTowerPos({PL,PC,towerB,black}, Xss) :-
-   member(Xs, Xss),
-   member({PL,PC,towerB,black}, Xs).
+   member({PL,PC,tower,PLAYER}, Xs).
 
 verifyKingDist(TAB, {LINE, COL, TYPE, white}):-
-        getBlackKingPos({PL,PC,kingB,black}, TAB),
+        getKingPos({PL,PC,king,black}, TAB),
         AUXLINE is abs(LINE-PL),
         AUXCOL is abs(COL-PC),
         AUX is AUXLINE+AUXCOL,
         AUX>=2.
 
 verifyKingDist(TAB, {LINE, COL, TYPE, black}):-
-        getWhiteKingPos({PL,PC,kingW,white}, TAB),
+        getKingPos({PL,PC,king,white}, TAB),
         AUXLINE is abs(LINE-PL),
         AUXCOL is abs(COL-PC),
         AUX is AUXLINE+AUXCOL,
         AUX>=2.
 
 game_over(TAB, WIN, PLAYER, STATE):-
-        getWhiteKingPos({PL,PC,kingW,white}, TAB),
+        getKingPos({PL,PC,king,white}, TAB),
         FRONT is PL-1,
-        \+verifyVictory(TAB,FRONT,PC,{PL, PC, kingW,white},NEWTAB),
+        \+verifyVictory(TAB,FRONT,PC,{PL, PC, king,white},NEWTAB),
         BACK is PL+1,
-        \+verifyVictory(TAB,BACK,PC,{PL, PC, kingW,white},NEWTAB),
+        \+verifyVictory(TAB,BACK,PC,{PL, PC, king,white},NEWTAB),
         RIGHT is PC+1,
-        \+verifyVictory(TAB,PL,RIGHT,{PL, PC, kingW,white},NEWTAB),
+        \+verifyVictory(TAB,PL,RIGHT,{PL, PC, king,white},NEWTAB),
         LEFT is PC-1,
-        \+verifyVictory(TAB,PL,LEFT,{PL, PC, kingW,white},NEWTAB),
+        \+verifyVictory(TAB,PL,LEFT,{PL, PC, king,white},NEWTAB),
 	display_game(TAB, black, win).
 
 game_over(TAB, WIN, PLAYER, STATE):-
-        getBlackKingPos({PL,PC,kingB,black}, TAB),
+        getKingPos({PL,PC,king,black}, TAB),
         FRONT is PL-1,
-        \+verifyVictory(TAB,FRONT,PC,{PL,PC,kingB,black},NEWTAB),
+        \+verifyVictory(TAB,FRONT,PC,{PL,PC,king,black},NEWTAB),
         BACK is PL+1,
-        \+verifyVictory(TAB,BACK,PC,{PL,PC,kingB,black},NEWTAB),
+        \+verifyVictory(TAB,BACK,PC,{PL,PC,king,black},NEWTAB),
         RIGHT is PC+1,
-        \+verifyVictory(TAB,PL,RIGHT,{PL,PC,kingB,black},NEWTAB),
+        \+verifyVictory(TAB,PL,RIGHT,{PL,PC,king,black},NEWTAB),
         LEFT is PC-1,
-        \+verifyVictory(TAB,PL,LEFT,{PL,PC,kingB,black},NEWTAB),
+        \+verifyVictory(TAB,PL,LEFT,{PL,PC,king,black},NEWTAB),
 	display_game(TAB, white, win).
 
 game_over(TAB, WIN, black, pvp):-
@@ -368,13 +302,9 @@ game_over(TAB, WIN, white, cvc):-
 	display_game(TAB, black, cvc).
 
 
-getWhiteKingPos({PL,PC,kingW,white}, Xss) :-
+getKingPos({PL,PC,king,PLAYER}, Xss) :-
    member(Xs, Xss),
-   member({PL,PC,kingW,white}, Xs).
-
-getBlackKingPos({PL,PC,kingB,black}, Xss) :-
-   member(Xs, Xss),
-   member({PL,PC,kingB,black}, Xs).
+   member({PL,PC,king,PLAYER}, Xs).
 
 verifyVictory(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB):-
         verifyMoveInsideBoard(LINEEND, COLEND),
@@ -430,40 +360,22 @@ verifyMoveDiag(LINE, COL, LINE_END, COL_END):-
         AX=AY.
 
 /*Types of Movement*/
-verifyMoveType({LINE,COL,kingW},{LINE_END,COL_END}):-
+verifyMoveType({LINE,COL,king},{LINE_END,COL_END}):-
         verifyMoveKing(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({LINE,COL,queenW},{LINE_END,COL_END}):-
+verifyMoveType({LINE,COL,queen},{LINE_END,COL_END}):-
         verifyMoveQueen(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({LINE,COL,towerW},{LINE_END,COL_END}):-
+verifyMoveType({LINE,COL,tower},{LINE_END,COL_END}):-
         verifyMoveTower(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({LINE,COL,bishopW},{LINE_END,COL_END}):-
+verifyMoveType({LINE,COL,bishop},{LINE_END,COL_END}):-
         verifyMoveBishop(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({LINE,COL,horseW},{LINE_END,COL_END}):-
+verifyMoveType({LINE,COL,horse},{LINE_END,COL_END}):-
         verifyMoveHorse(LINE, COL, LINE_END, COL_END).
 
-verifyMoveType({LINE,COL,pawnW},{LINE_END,COL_END}):-
-        verifyMovePawn(LINE, COL, LINE_END, COL_END).
-
-verifyMoveType({LINE,COL,kingB},{LINE_END,COL_END}):-
-        verifyMoveKing(LINE, COL, LINE_END, COL_END).
-
-verifyMoveType({LINE,COL,queenB},{LINE_END,COL_END}):-
-        verifyMoveQueen(LINE, COL, LINE_END, COL_END).
-
-verifyMoveType({LINE,COL,towerB},{LINE_END,COL_END}):-
-        verifyMoveTower(LINE, COL, LINE_END, COL_END).
-
-verifyMoveType({LINE,COL,bishopB},{LINE_END,COL_END}):-
-        verifyMoveBishop(LINE, COL, LINE_END, COL_END).
-
-verifyMoveType({LINE,COL,horseB},{LINE_END,COL_END}):-
-        verifyMoveHorse(LINE, COL, LINE_END, COL_END).
-
-verifyMoveType({LINE,COL,pawnB},{LINE_END,COL_END}):-
+verifyMoveType({LINE,COL,pawn},{LINE_END,COL_END}):-
         verifyMovePawn(LINE, COL, LINE_END, COL_END).
 
 /*King Movement*/
@@ -564,37 +476,37 @@ printSeparatorIndex:-
 board(
 [
 [{1,1,none,none}, {1,2,none,none}, {1,3,none,none}, {1,4,none,none}],
-[{2,1,none,none}, {2,2,none,none}, {2,3,kingB,black}, {2,4,none,none}],
-[{3,1,none,none}, {3,2,kingW,white}, {3,3,none,none}, {3,4,none,none}],
+[{2,1,none,none}, {2,2,none,none}, {2,3,king,black}, {2,4,none,none}],
+[{3,1,none,none}, {3,2,king,white}, {3,3,none,none}, {3,4,none,none}],
 [{4,1,none,none}, {4,2,none,none}, {4,3,none,none}, {4,4,none,none}]
 ]
 ).
 
 translate({_,_,none, none},S) :- S='  '.
-translate({_,_,kingB, black},S) :- S='kB'.
-translate({_,_,kingW, white},S) :- S='kW'.
-translate({_,_,queenB, black},S) :- S='qB'.
-translate({_,_,queenW, white},S) :- S='qW'.
-translate({_,_,bishopB, black},S) :- S='bB'.
-translate({_,_,bishopW, white},S) :- S='bW'.
-translate({_,_,towerB, black},S) :- S='tB'.
-translate({_,_,towerW, white},S) :- S='tW'.
-translate({_,_,horseB, black},S) :- S='hB'.
-translate({_,_,horseW, white},S) :- S='hW'.
-translate({_,_,pawnB, black},S) :- S='pB'.
-translate({_,_,pawnW, white},S) :- S='pW'.
+translate({_,_,king, black},S) :- S='kB'.
+translate({_,_,king, white},S) :- S='kW'.
+translate({_,_,queen, black},S) :- S='qB'.
+translate({_,_,queen, white},S) :- S='qW'.
+translate({_,_,bishop, black},S) :- S='bB'.
+translate({_,_,bishop, white},S) :- S='bW'.
+translate({_,_,tower, black},S) :- S='tB'.
+translate({_,_,tower, white},S) :- S='tW'.
+translate({_,_,horse, black},S) :- S='hB'.
+translate({_,_,horse, white},S) :- S='hW'.
+translate({_,_,pawn, black},S) :- S='pB'.
+translate({_,_,pawn, white},S) :- S='pW'.
 
-translate(1, white, S):- S='queenW'.
-translate(2, white, S):- S='bishopW'.
-translate(3, white, S):- S='towerW'.
-translate(4, white, S):- S='horseW'.
-translate(5, white, S):- S='pawnW'.
+translate(1, white, S):- S='queen'.
+translate(2, white, S):- S='bishop'.
+translate(3, white, S):- S='tower'.
+translate(4, white, S):- S='horse'.
+translate(5, white, S):- S='pawn'.
 
-translate(1, black, S):- S='queenB'.
-translate(2, black, S):- S='bishopB'.
-translate(3, black, S):- S='towerB'.
-translate(4, black, S):- S='horseB'.
-translate(5, black, S):- S='pawnB'.
+translate(1, black, S):- S='queen'.
+translate(2, black, S):- S='bishop'.
+translate(3, black, S):- S='tower'.
+translate(4, black, S):- S='horse'.
+translate(5, black, S):- S='pawn'.
 
 
 /*Game Functions*/
