@@ -58,7 +58,13 @@ putPieceAuto(TYPE, TAB, PLAYER, NEWTAB):-
         verifyMoveInsideBoard(LINE, COL),
         verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}),
         verifyKingDist(TAB, {LINE, COL, TYPE, PLAYER}),
-        replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB).
+        replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB),
+	nl, write('Computer Placed : '),
+	print(TYPE),
+	write(' at '),
+	print(LINE),
+	write('/'),
+	print(COL), nl.
 
 putPieceAuto(TYPE, TAB, PLAYER, NEWTAB):-
         putPieceAuto(TYPE, TAB, PLAYER, NEWTAB).
@@ -78,8 +84,14 @@ choosePieceAuto(TAB, {LINE, COL, TYPE, black}):-
 
 movePieceAuto(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB):-
         random(1,5, LINEEND),
-        random(1,5, COLEND),        
-        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB).
+        random(1,5, COLEND),      
+        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB),
+	nl ,write('Computer Moved : '),
+	print(TYPE),
+	write(' to '),
+	print(LINEEND),
+	write('/'),
+	print(COLEND), nl.
 
 gameChoice(3, TAB, white, cvc):-
         getWhiteTowerPos({TL,TC, towerW,white}, TAB),
