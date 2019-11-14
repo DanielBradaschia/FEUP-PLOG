@@ -4,8 +4,9 @@
 clearScreen:-
         write('\16\.'),nl.
 
-display_game(PLAYER, win):-
-	print(PLAYER),
+display_game(TAB, PLAYER, win):-
+	printBoard(TAB),
+	nl , print(PLAYER), 
 	write(' : WIN').
 
 display_game(TAB, PLAYER, pvp, cont):-
@@ -87,6 +88,18 @@ blackWin(TAB, WIN):-
 	display_game(black, win).
 
 blackWin(TAB, WIN):-
+        getBlackKingPos({PL,PC,kingB,black}, TAB),
+        FRONT is PL-1,
+        \+verifyEndPosition(TAB,FRONT,PC,{PL,PC,kingB,black},NEWTAB),
+        BACK is PL+1,
+        \+verifyEndPosition(TAB,BACK,PC,{PL,PC,kingB,black},NEWTAB),
+        RIGHT is PC+1,
+        \+verifyEndPosition(TAB,PL,RIGHT,{PL,PC,kingB,black},NEWTAB),
+        LEFT is PC-1,
+        \+verifyEndPosition(TAB,PL,LEFT,{PL,PC,kingB,black},NEWTAB),
+	display_game(white, win).
+
+blackWin(TAB, WIN):-
 	display_game(TAB, white, pvp, cont).
 
 whiteWin(TAB, WIN):-
@@ -100,6 +113,18 @@ whiteWin(TAB, WIN):-
         LEFT is PC-1,
         \+verifyEndPosition(TAB,PL,LEFT,{PL,PC,kingB,black},NEWTAB),
 	display_game(white, win).
+
+whiteWin(TAB, WIN):-
+        getWhiteKingPos({PL,PC,kingW,white}, TAB),
+        FRONT is PL-1,
+        \+verifyEndPosition(TAB,FRONT,PC,{PL, PC, kingW,white},NEWTAB),
+        BACK is PL+1,
+        \+verifyEndPosition(TAB,BACK,PC,{PL, PC, kingW,white},NEWTAB),
+        RIGHT is PC+1,
+        \+verifyEndPosition(TAB,PL,RIGHT,{PL, PC, kingW,white},NEWTAB),
+        LEFT is PC-1,
+        \+verifyEndPosition(TAB,PL,LEFT,{PL, PC, kingW,white},NEWTAB),
+	display_game(black, win).
 
 whiteWin(TAB, WIN):-
 	display_game(TAB, black, pvp, cont).
