@@ -74,6 +74,37 @@ display_game(TAB, white, pvc):-
                 gameChoice(Action, TAB, white, pvc)
         ).
 
+display_game(TAB, white, pvc2):-
+        (
+                
+                isTowerOnBoard(white, TAB)
+                ->
+                        repeat,
+                        printBoard(TAB),
+                        
+                        nl, write(' PLAYER '), write(white),write(' - '),nl,
+                        write('Choose an option!'), nl,
+                        write('1. Put Piece on Board'), nl,
+                        write('2. Move Piece'), nl,
+                        write('3. Swap Tower and King'), nl,
+                        read(Action),
+                        Action > 0,
+                        Action < 4,
+                        gameChoice(Action, TAB, white, pvc2)
+                ;
+                repeat,
+                printBoard(TAB),
+                
+                nl, write(' PLAYER '), write(white),write(' - '),nl,
+                write('Choose an option!'), nl,
+                write('1. Put Piece on Board'), nl,
+                write('2. Move Piece'), nl,
+                read(Action),
+                Action > 0,
+                Action < 3,
+                gameChoice(Action, TAB, white, pvc2)
+        ).
+
 display_game(TAB, black, pvc):-
         (
 		isTowerOnBoard(black, TAB)
@@ -93,6 +124,24 @@ display_game(TAB, black, pvc):-
                 gameChoice(Action, TAB, black, pvc)
         ).
         
+display_game(TAB, black, pvc2):-
+        (
+		isTowerOnBoard(black, TAB)
+                ->
+                        repeat,
+                        printBoard(TAB),
+                        
+                        nl, write(' PLAYER '), write(black),write(' - '),nl,
+                	random(1,4,Action),
+                        gameChoice(Action, TAB, black, pvc2)
+                ;
+                repeat,
+		printBoard(TAB),
+                nl, write(' PLAYER '), write(black),write(' - '),nl,
+
+                random(1,3,Action),
+                gameChoice(Action, TAB, black, pvc2)
+        ).
 
 display_game(TAB, PLAYER, cvc):-
         (
@@ -115,6 +164,26 @@ display_game(TAB, PLAYER, cvc):-
                 gameChoice(Action, TAB, PLAYER, cvc)
         ).
 
+display_game(TAB, PLAYER, cvc2):-
+        (
+		sleep(1),
+		isTowerOnBoard(PLAYER, TAB)
+                ->
+                        repeat,
+                        printBoard(TAB),
+                        
+                        nl, write(' PLAYER '), write(PLAYER),write(' - '),nl,
+                	random(1,4,Action),
+                        gameChoice(Action, TAB, PLAYER, cvc2)
+                ;
+                repeat,
+		printBoard(TAB),
+                nl, write(' PLAYER '), write(PLAYER),write(' - '),nl,
+
+                random(1,3,Action),
+                gameChoice(Action, TAB, PLAYER, cvc2)
+        ).
+
 gameChoice(1, TAB, PLAYER, STATE):-
 	placePiece(TAB, PLAYER, NEWTAB, STATE),
 	game_over(NEWTAB, PLAYER, STATE).
@@ -129,7 +198,7 @@ gameChoice(3, TAB, PLAYER, STATE):-
         getKingPos({KL,KC, king,PLAYER}, TAB),
         replace(TAB, TL, TC, {TL, TC, king, PLAYER}, NEWTAB),
         replace(NEWTAB, KL, KC, {KL, KC, tower, PLAYER}, NEWTAB2),
-	write('Computer switched King and Tower'), nl, nl,
+	write('Player '),write(PLAYER),write(' switched King and Tower'), nl, nl,
         game_over(NEWTAB2, PLAYER, STATE).
 
 
@@ -175,6 +244,13 @@ placePiece(TAB, PLAYER, NEWTAB, cvc):-
 	verifyPlace(TAB,{_,_,TYPE,PLAYER}, cvc),
         putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc).
 
+placePiece(TAB, PLAYER, NEWTAB, cvc2):-
+        random(1,7, Action),
+        translate(Action,PLAYER,TYPE,TAB,cvc2),
+	verifyPlace(TAB,{_,_,TYPE,PLAYER}, cvc2),
+        putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc2).
+
+
 verifyPlace(TAB, {_,_, TYPE, PLAYER}, _):-
 	getPiecesI(TAB, PLIST),
 	nonmember({_,_,TYPE, PLAYER},PLIST).
@@ -194,6 +270,9 @@ verifyPlace(TAB,{_,_,_,black}, pvc):-
 
 verifyPlace(TAB,{_,_,_,PLAYER}, cvc):-
 	gameChoice(1,TAB,PLAYER, cvc).
+
+verifyPlace(TAB,{_,_,_,PLAYER}, cvc2):-
+	gameChoice(1,TAB,PLAYER, cvc2).
 
 putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp):-
         write(' Select Place (Row/Column) to put in: '),
@@ -244,8 +323,23 @@ putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc):-
 	write('/'),
 	print(COL), nl, nl.
 
+putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc2):-
+        random(1,5, LINE),
+        random(1,5, COL),
+	verifyPlacement(TAB, LINE, COL, PLAYER), 
+        replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB),
+	write('Computer Placed : '),
+	print(TYPE),
+	write(' at '),
+	print(LINE),
+	write('/'),
+	print(COL), nl, nl.
+
 putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc):-
         putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc).
+
+putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc2):-
+        putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc2).
 
 verifyPlacement(TAB, LINE, COL, PLAYER):-
         verifyMoveInsideBoard(LINE, COL),
@@ -288,6 +382,14 @@ choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, cvc):-
 choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, cvc):-
         choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, cvc).
 
+choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, cvc2):-
+        random(1,5, LINE),
+        random(1,5, COL),        
+        verifyPosition(TAB, {LINE, COL, TYPE, PLAYER}).
+
+choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, cvc2):-
+        choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, cvc2).
+
 verifyPosition(TAB, {LINE, COL, TYPE, PLAYER}):-
         verifyMoveInsideBoard(LINE, COL),
         verifyPiece(TAB, {LINE, COL, TYPE, PLAYER}).
@@ -322,6 +424,17 @@ movePiece(TAB, {LINE, COL, TYPE, black}, NEWTAB, pvc):-
 	print(COLEND), nl, nl.
 
 movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, cvc):-
+        random(1,5, LINEEND),
+        random(1,5, COLEND),      
+        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB),
+	write('Computer Moved : '),
+	print(TYPE),
+	write(' to '),
+	print(LINEEND),
+	write('/'),
+	print(COLEND), nl, nl.
+
+movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, cvc2):-
         random(1,5, LINEEND),
         random(1,5, COLEND),      
         verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB),
@@ -665,11 +778,19 @@ gameMode(1):-
 
 gameMode(2):-
 	board(TAB),
-        display_game(TAB, white, pvc).
+        write('Choose a level of difficulty (1. is easy/ 2. is hard)'),
+        read(Action),
+        Action > 0,
+        Action < 3,
+        chooseDificulty(TAB, Action, pvp).
 
 gameMode(3):-
         board(TAB),
-        display_game(TAB, white, cvc).
+        write('Choose a level of difficulty (1. is easy/ 2. is hard)'),
+        read(Action),
+        Action > 0,
+        Action < 3,
+        chooseDificulty(TAB, Action, cvc).
 
 gameMode(4):-
         nl, nl, nl,
@@ -697,7 +818,20 @@ gameMode(5):-
         write(' |      Thank you so much for playing our game!        | '), nl,
         write(' |-----------------------------------------------------| '), nl,
         nl,
-        nl.
+        sleep(2),
+        halt.
+
+chooseDificulty(TAB, 1, cvc):-
+        display_game(TAB, white, cvc).
+
+chooseDificulty(TAB, 2, cvc):-
+        display_game(TAB, white, cvc2).
+
+chooseDificulty(TAB, 1, pvc):-
+        display_game(TAB, white, pvc).
+
+chooseDificulty(TAB, 2, pvc):-
+        display_game(TAB, white, pvc2).
 
 printMainMenu:-
         nl, nl, nl,
