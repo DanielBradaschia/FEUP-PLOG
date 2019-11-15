@@ -107,19 +107,9 @@ display_game(TAB, white, pvc2):-
 
 display_game(TAB, black, pvc):-
         (
-		isTowerOnBoard(black, TAB)
-                ->
-                        repeat,
-                        printBoard(TAB),
-                        
-                        nl, write(' PLAYER '), write(black),write(' - '),nl,
-                	random(1,4,Action),
-                        gameChoice(Action, TAB, black, pvc)
-                ;
                 repeat,
 		printBoard(TAB),
                 nl, write(' PLAYER '), write(black),write(' - '),nl,
-
                 random(1,3,Action),
                 gameChoice(Action, TAB, black, pvc)
         ).
@@ -146,20 +136,9 @@ display_game(TAB, black, pvc2):-
 display_game(TAB, PLAYER, cvc):-
         (
 		sleep(1),
-
-		isTowerOnBoard(PLAYER, TAB)
-                ->
-                        repeat,
-                        printBoard(TAB),
-                        
-                        nl, write(' PLAYER '), write(PLAYER),write(' - '),nl,
-                	random(1,4,Action),
-                        gameChoice(Action, TAB, PLAYER, cvc)
-                ;
                 repeat,
 		printBoard(TAB),
                 nl, write(' PLAYER '), write(PLAYER),write(' - '),nl,
-
                 random(1,3,Action),
                 gameChoice(Action, TAB, PLAYER, cvc)
         ).
@@ -478,22 +457,22 @@ verifyNotPiece(TAB, {LINE, COL,_,_}):-
 movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, pvp):-
         write(' Select Destination (Row/Column) '),
         read(LINEEND/COLEND),
-        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB).
+        verifyEndPosition(TAB,{LINEEND,COLEND},{LINE, COL, TYPE, PLAYER},NEWTAB).
 
 movePiece(TAB, {LINE, COL, TYPE, white}, NEWTAB, pvc):-
         write(' Select Destination (Row/Column) '),
         read(LINEEND/COLEND),
-        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, white},NEWTAB).
+        verifyEndPosition(TAB,{LINEEND,COLEND},{LINE, COL, TYPE, white},NEWTAB).
 
 movePiece(TAB, {LINE, COL, TYPE, white}, NEWTAB, pvc2):-
         write(' Select Destination (Row/Column) '),
         read(LINEEND/COLEND),
-        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, white},NEWTAB).
+        verifyEndPosition(TAB,{LINEEND,COLEND},{LINE, COL, TYPE, white},NEWTAB).
 
 movePiece(TAB, {LINE, COL, TYPE, black}, NEWTAB, pvc):-
         random(1,5, LINEEND),
         random(1,5, COLEND),      
-        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, black},NEWTAB),
+        verifyEndPosition(TAB,{LINEEND,COLEND},{LINE, COL, TYPE, black},NEWTAB),
 	write('Computer Moved : '),
 	print(TYPE),
 	write(' to '),
@@ -504,7 +483,7 @@ movePiece(TAB, {LINE, COL, TYPE, black}, NEWTAB, pvc):-
 movePiece(TAB, {LINE, COL, TYPE, black}, NEWTAB, pvc2):-
         random(1,5, LINEEND),
         random(1,5, COLEND),      
-        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, black},NEWTAB),
+        verifyEndPosition(TAB,{LINEEND,COLEND},{LINE, COL, TYPE, black},NEWTAB),
 	write('Computer Moved : '),
 	print(TYPE),
 	write(' to '),
@@ -515,7 +494,7 @@ movePiece(TAB, {LINE, COL, TYPE, black}, NEWTAB, pvc2):-
 movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, cvc):-
         random(1,5, LINEEND),
         random(1,5, COLEND),      
-        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB),
+        verifyEndPosition(TAB,{LINEEND,COLEND},{LINE, COL, TYPE, PLAYER},NEWTAB),
 	write('Computer Moved : '),
 	print(TYPE),
 	write(' to '),
@@ -526,7 +505,7 @@ movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, cvc):-
 movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, cvc2):-
         random(1,5, LINEEND),
         random(1,5, COLEND),      
-        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB),
+        verifyEndPosition(TAB,{LINEEND,COLEND},{LINE, COL, TYPE, PLAYER},NEWTAB),
 	write('Computer Moved : '),
 	print(TYPE),
 	write(' to '),
@@ -534,7 +513,7 @@ movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, cvc2):-
 	write('/'),
 	print(COLEND), nl, nl.
 
-verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB):-
+verifyEndPosition(TAB,{LINEEND,COLEND},{LINE, COL, TYPE, PLAYER},NEWTAB):-
         verifyMoveInsideBoard(LINEEND, COLEND),
         verifyNotPiece(TAB, {LINEEND, COLEND, _, _}),
         verifyMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}),
@@ -946,3 +925,11 @@ play:-
         printMainMenu,
         write(' Selecione uma opcao:'), nl,
         selectGameMode.
+
+
+
+/*
+usar findall para achar valid_moves
+usar choose_move para retornar a primeira opcao valida do validmoves
+
+*/
