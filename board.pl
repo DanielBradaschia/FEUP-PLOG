@@ -4,10 +4,12 @@
 clearScreen:-
         write('\16\.'),nl.
 
-display_game(TAB, PLAYER, win):-
+display_game(TAB, PLAYER, STATE):-
+	STATE=win,
 	printBoard(TAB),
 	nl , print(PLAYER), 
-	write(' : WIN').
+	write(' : WIN'),
+	play.
 
 display_game(TAB, PLAYER, pvp):-
         (
@@ -273,7 +275,7 @@ verifyKingDist(TAB, {LINE, COL, _, black}):-
         AUX is AUXLINE+AUXCOL,
         AUX>=2.
 
-game_over(TAB, PLAYER,_):-
+game_over(TAB, black, _):-
         getKingPos({PL,PC,king,white}, TAB),
         FRONT is PL-1,
         \+verifyVictory(TAB,FRONT,PC,{PL, PC, king,white}),
@@ -283,9 +285,9 @@ game_over(TAB, PLAYER,_):-
         \+verifyVictory(TAB,PL,RIGHT,{PL, PC, king,white}),
         LEFT is PC-1,
         \+verifyVictory(TAB,PL,LEFT,{PL, PC, king,white}),
-	display_game(TAB, PLAYER, win).
+	display_game(TAB, black, win).
 
-game_over(TAB, PLAYER,_):-
+game_over(TAB, white, _):-
         getKingPos({PL,PC,king,black}, TAB),
         FRONT is PL-1,
         \+verifyVictory(TAB,FRONT,PC,{PL,PC,king,black}),
@@ -295,7 +297,7 @@ game_over(TAB, PLAYER,_):-
         \+verifyVictory(TAB,PL,RIGHT,{PL,PC,king,black}),
         LEFT is PC-1,
         \+verifyVictory(TAB,PL,LEFT,{PL,PC,king,black}),
-	display_game(TAB, PLAYER, win).
+	display_game(TAB, white, win).
 
 game_over(TAB, black, STATE):-
 	display_game(TAB, white, STATE).
