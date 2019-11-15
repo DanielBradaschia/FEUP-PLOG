@@ -693,6 +693,11 @@ gameMode(4):-
         play.
 
 gameMode(5):-
+        printEndMenu,
+        sleep(2),
+        halt.
+
+printEndMenu:-
         write(' |-----------------------------------------------------| '), nl,
         write(' |      Thank you so much for playing our game!        | '), nl,
         write(' |-----------------------------------------------------| '), nl,
