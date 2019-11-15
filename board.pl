@@ -7,7 +7,8 @@ clearScreen:-
 display_game(TAB, PLAYER, win):-
 	printBoard(TAB),
 	nl , print(PLAYER), 
-	write(' : WIN').
+	write(' : WIN'),
+	play.
 
 display_game(TAB, PLAYER, pvp):-
         (
@@ -42,8 +43,7 @@ display_game(TAB, PLAYER, pvp):-
         
 
 display_game(TAB, PLAYER, cvc):-
-        (	
-		sleep(1),
+        (
 
 		isTowerOnBoard(PLAYER, TAB)
                 ->
@@ -64,12 +64,12 @@ display_game(TAB, PLAYER, cvc):-
 
 gameChoice(1, TAB, PLAYER, STATE):-
 	placePiece(TAB, PLAYER, NEWTAB, STATE),
-	game_over(NEWTAB, WIN, PLAYER, STATE).
+	game_over(NEWTAB, PLAYER, STATE).
 
 gameChoice(2, TAB, PLAYER, STATE):-
         choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, STATE),
         movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, STATE),
-	game_over(NEWTAB, WIN, PLAYER, STATE).
+	game_over(NEWTAB, PLAYER, STATE).
 
 gameChoice(3, TAB, PLAYER, STATE):-
         getTowerPos({TL,TC, tower,PLAYER}, TAB),
@@ -91,32 +91,32 @@ placePiece(TAB, PLAYER, NEWTAB, pvp):-
         Action > 0,
         Action < 7,
         translate(Action,PLAYER,TYPE,TAB,pvp),
-	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}, pvp),
+	verifyPlace(TAB,{_,_,TYPE,PLAYER}, pvp),
         putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp).
 
 placePiece(TAB, PLAYER, NEWTAB, cvc):-
         random(1,7, Action),
         translate(Action,PLAYER,TYPE,TAB,cvc),
-	verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}, cvc),
+	verifyPlace(TAB,{_,_,TYPE,PLAYER}, cvc),
         putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc).
 
-verifyPlace(TAB, {LINE, COL, TYPE, PLAYER}, _):-
+verifyPlace(TAB, {_,_, TYPE, PLAYER}, _):-
 	getPiecesI(TAB, PLIST),
 	nonmember({_,_,TYPE, PLAYER},PLIST).
 
-verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}, pvp):-
+verifyPlace(TAB,{_,_,_,PLAYER}, pvp):-
 	clearScreen, printBoard(TAB),
         nl, write('Invalid Option. Try again!'), nl,
-        placePiece(TAB,PLAYER,NEWTAB, pvp).
+        placePiece(TAB,PLAYER,[], pvp).
 
-verifyPlace(TAB,{LINE,COL,TYPE,PLAYER}, cvc):-
-	placePiece(TAB,PLAYER,NEWTAB, cvc).
+verifyPlace(TAB,{_,_,_,PLAYER}, cvc):-
+	placePiece(TAB,PLAYER,[], cvc).
 
 putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp):-
         write(' Select Place (Row/Column) to put in: '),
         read(LINE/COL),
         verifyMoveInsideBoard(LINE, COL),
-        verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}),
+        verifyNotPiece(TAB, {LINE, COL, _, _}),
         verifyKingDist(TAB, {LINE, COL, TYPE, PLAYER}),
         replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB).
 
@@ -129,8 +129,8 @@ putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc):-
         random(1,5, LINE),
         random(1,5, COL),
         verifyMoveInsideBoard(LINE, COL),
-        verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}),
-        verifyKingDist(TAB, {LINE, COL, TYPE, PLAYER}),
+        verifyNotPiece(TAB, {LINE, COL, _, _}),
+        verifyKingDist(TAB, {LINE, COL, _, PLAYER}),
         replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB),
 	nl, write('Computer Placed : '),
 	print(TYPE),
@@ -152,12 +152,12 @@ choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, pvp):-
         nl, write('Invalid Position. Try again!'), nl,
         choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, pvp).
 
-choosePiece(TAB, {LINE, COL, TYPE, black}, cvc):-
+choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, cvc):-
         random(1,5, LINE),
         random(1,5, COL),        
         verifyPosition(TAB, {LINE, COL, TYPE, PLAYER}).
 
-choosePiece(TAB, {LINE, COL, TYPE, black}, cvc):-
+choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, cvc):-
         choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, cvc).
 
 verifyPosition(TAB, {LINE, COL, TYPE, PLAYER}):-
@@ -168,7 +168,7 @@ verifyPiece(TAB, {LINE, COL, TYPE, PLAYER}):-
 	getPiecesI(TAB, PLIST),
 	member({LINE,COL,TYPE, PLAYER},PLIST).
 
-verifyNotPiece(TAB, {LINE, COL, TYPE, PLAYER}):-
+verifyNotPiece(TAB, {LINE, COL,_,_}):-
 	getPiecesI(TAB, PLIST),
 	member({LINE,COL,none,none},PLIST).
 
@@ -190,7 +190,7 @@ movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, cvc):-
 
 verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB):-
         verifyMoveInsideBoard(LINEEND, COLEND),
-        verifyNotPiece(TAB, {LINEEND, COLEND, TYPE, PLAYER}),
+        verifyNotPiece(TAB, {LINEEND, COLEND, _, _}),
         verifyMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}),
         executeMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB).
 
@@ -209,10 +209,10 @@ moveAuxRec(_,_,[],[]).
 
 moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, [H|T], NEWTAB):-
 	moveAuxRec({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, T, NEWTAB2),
-	moveAuxSet({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, H, NEWPIECE),
+	moveAuxSet({_, _, TYPE, PLAYER}, {LINEEND, COLEND}, H, NEWPIECE),
 	append([NEWPIECE], NEWTAB2, NEWTAB).
 
-moveAuxSet({LINE, COL, TYPE, PLAYER}, {LINEEND, COLEND}, {LPOS, CPOS, none, none} , {LPOS, CPOS, TYPE, PLAYER}):-
+moveAuxSet({_, _, TYPE, PLAYER}, {LINEEND, COLEND}, {LPOS, CPOS, none, none} , {LPOS, CPOS, TYPE, PLAYER}):-
 	LPOS=LINEEND,
 	CPOS=COLEND.
 
@@ -260,64 +260,58 @@ getTowerPos({PL,PC, tower,PLAYER}, Xss) :-
    member(Xs, Xss),
    member({PL,PC,tower,PLAYER}, Xs).
 
-verifyKingDist(TAB, {LINE, COL, TYPE, white}):-
+verifyKingDist(TAB, {LINE, COL, _, white}):-
         getKingPos({PL,PC,king,black}, TAB),
         AUXLINE is abs(LINE-PL),
         AUXCOL is abs(COL-PC),
         AUX is AUXLINE+AUXCOL,
         AUX>=2.
 
-verifyKingDist(TAB, {LINE, COL, TYPE, black}):-
+verifyKingDist(TAB, {LINE, COL, _, black}):-
         getKingPos({PL,PC,king,white}, TAB),
         AUXLINE is abs(LINE-PL),
         AUXCOL is abs(COL-PC),
         AUX is AUXLINE+AUXCOL,
         AUX>=2.
 
-game_over(TAB, WIN, PLAYER, STATE):-
+game_over(TAB, black,_):-
         getKingPos({PL,PC,king,white}, TAB),
         FRONT is PL-1,
-        \+verifyVictory(TAB,FRONT,PC,{PL, PC, king,white},NEWTAB),
+        \+verifyVictory(TAB,FRONT,PC,{PL, PC, king,white}),
         BACK is PL+1,
-        \+verifyVictory(TAB,BACK,PC,{PL, PC, king,white},NEWTAB),
+        \+verifyVictory(TAB,BACK,PC,{PL, PC, king,white}),
         RIGHT is PC+1,
-        \+verifyVictory(TAB,PL,RIGHT,{PL, PC, king,white},NEWTAB),
+        \+verifyVictory(TAB,PL,RIGHT,{PL, PC, king,white}),
         LEFT is PC-1,
-        \+verifyVictory(TAB,PL,LEFT,{PL, PC, king,white},NEWTAB),
+        \+verifyVictory(TAB,PL,LEFT,{PL, PC, king,white}),
 	display_game(TAB, black, win).
 
-game_over(TAB, WIN, PLAYER, STATE):-
+game_over(TAB, white,_):-
         getKingPos({PL,PC,king,black}, TAB),
         FRONT is PL-1,
-        \+verifyVictory(TAB,FRONT,PC,{PL,PC,king,black},NEWTAB),
+        \+verifyVictory(TAB,FRONT,PC,{PL,PC,king,black}),
         BACK is PL+1,
-        \+verifyVictory(TAB,BACK,PC,{PL,PC,king,black},NEWTAB),
+        \+verifyVictory(TAB,BACK,PC,{PL,PC,king,black}),
         RIGHT is PC+1,
-        \+verifyVictory(TAB,PL,RIGHT,{PL,PC,king,black},NEWTAB),
+        \+verifyVictory(TAB,PL,RIGHT,{PL,PC,king,black}),
         LEFT is PC-1,
-        \+verifyVictory(TAB,PL,LEFT,{PL,PC,king,black},NEWTAB),
+        \+verifyVictory(TAB,PL,LEFT,{PL,PC,king,black}),
 	display_game(TAB, white, win).
 
-game_over(TAB, WIN, black, pvp):-
-	display_game(TAB, white, pvp).
+game_over(TAB, black, STATE):-
+	display_game(TAB, white, STATE).
 
-game_over(TAB, WIN, white, pvp):-
-	display_game(TAB, black, pvp).
-
-game_over(TAB, WIN, black, cvc):-
-	display_game(TAB, white, cvc).
-
-game_over(TAB, WIN, white, cvc):-
-	display_game(TAB, black, cvc).
+game_over(TAB, white, STATE):-
+	display_game(TAB, black, STATE).
 
 
 getKingPos({PL,PC,king,PLAYER}, Xss) :-
    member(Xs, Xss),
    member({PL,PC,king,PLAYER}, Xs).
 
-verifyVictory(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB):-
+verifyVictory(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER}):-
         verifyMoveInsideBoard(LINEEND, COLEND),
-        verifyNotPiece(TAB, {LINEEND, COLEND, TYPE, PLAYER}),
+        verifyNotPiece(TAB, {LINEEND, COLEND, _, _}),
         verifyMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}).
 
 getPiecesI([],[]).
@@ -505,12 +499,12 @@ translate({_,_,horse, white},S) :- S='hW'.
 translate({_,_,pawn, black},S) :- S='pB'.
 translate({_,_,pawn, white},S) :- S='pW'.
 
-translate(1, PLAYER, S, TAB, STATE):- S='queen'.
-translate(2, PLAYER, S, TAB, STATE):- S='bishop'.
-translate(3, PLAYER, S, TAB, STATE):- S='tower'.
-translate(4, PLAYER, S, TAB, STATE):- S='horse'.
-translate(5, PLAYER, S, TAB, STATE):- S='pawn'.
-translate(6, PLAYER, S, TAB, STATE) :- display_game(TAB, PLAYER, STATE).
+translate(1, _, S, _, _):- S='queen'.
+translate(2, _, S, _, _):- S='bishop'.
+translate(3, _, S, _, _):- S='tower'.
+translate(4, _, S, _, _):- S='horse'.
+translate(5, _, S, _, _):- S='pawn'.
+translate(6, PLAYER, _, TAB, STATE) :- display_game(TAB, PLAYER, STATE).
 
 
 /*Game Functions*/
