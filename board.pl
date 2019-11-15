@@ -9,6 +9,7 @@ display_game(TAB, PLAYER, STATE):-
 	printBoard(TAB),
 	nl , print(PLAYER), 
 	write(' : WIN'),
+	sleep(2),
 	play.
 
 display_game(TAB, PLAYER, pvp):-
@@ -19,7 +20,7 @@ display_game(TAB, PLAYER, pvp):-
                         repeat,
                         printBoard(TAB),
                         
-                        nl, write(' PLAYER '), write(PLAYER),write(' - '),
+                        nl, write(' PLAYER '), write(PLAYER),write(' - '),nl,
                         write('Choose an option!'), nl,
                         write('1. Put Piece on Board'), nl,
                         write('2. Move Piece'), nl,
@@ -41,10 +42,62 @@ display_game(TAB, PLAYER, pvp):-
                 Action < 3,
                 gameChoice(Action, TAB, PLAYER, pvp)
         ).
+
+display_game(TAB, white, pvc):-
+        (
+                
+                isTowerOnBoard(white, TAB)
+                ->
+                        repeat,
+                        printBoard(TAB),
+                        
+                        nl, write(' PLAYER '), write(white),write(' - '),nl,
+                        write('Choose an option!'), nl,
+                        write('1. Put Piece on Board'), nl,
+                        write('2. Move Piece'), nl,
+                        write('3. Swap Tower and King'), nl,
+                        read(Action),
+                        Action > 0,
+                        Action < 4,
+                        gameChoice(Action, TAB, white, pvc)
+                ;
+                repeat,
+                printBoard(TAB),
+                
+                nl, write(' PLAYER '), write(white),write(' - '),nl,
+                write('Choose an option!'), nl,
+                write('1. Put Piece on Board'), nl,
+                write('2. Move Piece'), nl,
+                read(Action),
+                Action > 0,
+                Action < 3,
+                gameChoice(Action, TAB, white, pvc)
+        ).
+
+display_game(TAB, black, pvc):-
+        (
+		isTowerOnBoard(black, TAB)
+                ->
+                        repeat,
+                        printBoard(TAB),
+                        
+                        nl, write(' PLAYER '), write(black),write(' - '),nl,
+                	random(1,4,Action),
+                        gameChoice(Action, TAB, black, pvc)
+                ;
+                repeat,
+		printBoard(TAB),
+                nl, write(' PLAYER '), write(black),write(' - '),nl,
+
+                random(1,3,Action),
+                gameChoice(Action, TAB, black, pvc)
+        ).
         
 
 display_game(TAB, PLAYER, cvc):-
         (
+		sleep(1),
+
 		isTowerOnBoard(PLAYER, TAB)
                 ->
                         repeat,
@@ -56,7 +109,7 @@ display_game(TAB, PLAYER, cvc):-
                 ;
                 repeat,
 		printBoard(TAB),
-                nl, write(' PLAYER '), write(PLAYER),nl,
+                nl, write(' PLAYER '), write(PLAYER),write(' - '),nl,
 
                 random(1,3,Action),
                 gameChoice(Action, TAB, PLAYER, cvc)
@@ -76,6 +129,7 @@ gameChoice(3, TAB, PLAYER, STATE):-
         getKingPos({KL,KC, king,PLAYER}, TAB),
         replace(TAB, TL, TC, {TL, TC, king, PLAYER}, NEWTAB),
         replace(NEWTAB, KL, KC, {KL, KC, tower, PLAYER}, NEWTAB2),
+	write('Computer switched King and Tower'), nl, nl,
         game_over(NEWTAB2, PLAYER, STATE).
 
 
@@ -94,6 +148,27 @@ placePiece(TAB, PLAYER, NEWTAB, pvp):-
 	verifyPlace(TAB,{_,_,TYPE,PLAYER}, pvp),
         putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp).
 
+placePiece(TAB, white, NEWTAB, pvc):-
+        write('Choose an option!'), nl,
+        write('1. Queen'), nl,
+        write('2. Bishop'), nl,
+        write('3. Tower'), nl,
+        write('4. Horse'), nl,
+        write('5. Pawn'), nl,
+        write('6. Return'), nl,
+        read(Action),
+        Action > 0,
+        Action < 7,
+        translate(Action,white,TYPE,TAB,pvc),
+	verifyPlace(TAB,{_,_,TYPE,white}, pvc),
+        putPiece(TYPE, TAB, white, NEWTAB, pvc).
+
+placePiece(TAB, black, NEWTAB, pvc):-
+        random(1,7, Action),
+        translate(Action,black,TYPE,TAB,pvc),
+	verifyPlace(TAB,{_,_,TYPE,black}, pvc),
+        putPiece(TYPE, TAB, black, NEWTAB, pvc).
+
 placePiece(TAB, PLAYER, NEWTAB, cvc):-
         random(1,7, Action),
         translate(Action,PLAYER,TYPE,TAB,cvc),
@@ -109,36 +184,70 @@ verifyPlace(TAB,{_,_,_,PLAYER}, pvp):-
         nl, write('Invalid Option. Try again!'), nl,
         gameChoice(1,TAB,PLAYER, pvp).
 
+verifyPlace(TAB,{_,_,_,white}, pvc):-
+	clearScreen, printBoard(TAB),
+        nl, write('Invalid Option. Try again!'), nl,
+        gameChoice(1,TAB,white, pvc).
+
+verifyPlace(TAB,{_,_,_,black}, pvc):-
+	gameChoice(1,TAB,black, pvc).
+
 verifyPlace(TAB,{_,_,_,PLAYER}, cvc):-
 	gameChoice(1,TAB,PLAYER, cvc).
 
 putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp):-
         write(' Select Place (Row/Column) to put in: '),
         read(LINE/COL),
-        verifyPlacement(TAB, LINE, COL), 
+        verifyPlacement(TAB, LINE, COL, PLAYER), 
         replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB).
-
-putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc):-
-        random(1,5, LINE),
-        random(1,5, COL),
-	verifyPlacement(TAB, LINE, COL), 
-        replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB),
-	nl, write('Computer Placed : '),
-	print(TYPE),
-	write(' at '),
-	print(LINE),
-	write('/'),
-	print(COL), nl, nl.
 
 putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp):-
 	clearScreen, printBoard(TAB),
         nl, write('Invalid Position. Try again!'), nl,
         putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp).
 
+putPiece(TYPE, TAB, white, NEWTAB, pvc):-
+        write(' Select Place (Row/Column) to put in: '),
+        read(LINE/COL),
+        verifyPlacement(TAB, LINE, COL, white), 
+        replace(TAB, LINE, COL, {LINE, COL, TYPE, white}, NEWTAB).
+
+putPiece(TYPE, TAB, white, NEWTAB, pvc):-
+	clearScreen, printBoard(TAB),
+        nl, write('Invalid Position. Try again!'), nl,
+        putPiece(TYPE, TAB, white, NEWTAB, pvc).
+
+putPiece(TYPE, TAB, black, NEWTAB, pvc):-
+        random(1,5, LINE),
+        random(1,5, COL),
+	verifyPlacement(TAB, LINE, COL, black), 
+        replace(TAB, LINE, COL, {LINE, COL, TYPE, black}, NEWTAB),
+	write('Computer Placed : '),
+	print(TYPE),
+	write(' at '),
+	print(LINE),
+	write('/'),
+	print(COL), nl, nl.
+
+putPiece(TYPE, TAB, black, NEWTAB, pvc):-
+        putPiece(TYPE, TAB, black, NEWTAB, pvc).
+
+putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc):-
+        random(1,5, LINE),
+        random(1,5, COL),
+	verifyPlacement(TAB, LINE, COL, PLAYER), 
+        replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB),
+	write('Computer Placed : '),
+	print(TYPE),
+	write(' at '),
+	print(LINE),
+	write('/'),
+	print(COL), nl, nl.
+
 putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc):-
         putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc).
 
-verifyPlacement(TAB, LINE, COL):-
+verifyPlacement(TAB, LINE, COL, PLAYER):-
         verifyMoveInsideBoard(LINE, COL),
         verifyNotPiece(TAB, {LINE, COL, _, _}),
         verifyKingDist(TAB, {LINE, COL, _, PLAYER}).
@@ -152,6 +261,24 @@ choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, pvp):-
         clearScreen, printBoard(TAB),
         nl, write('Invalid Position. Try again!'), nl,
         choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, pvp).
+
+choosePiece(TAB, {LINE, COL, TYPE, white}, pvc):-
+        write(' Select Piece (Row/Column): '),
+        read(LINE/COL),
+        verifyPosition(TAB, {LINE, COL, TYPE, white}).
+
+choosePiece(TAB, {LINE, COL, TYPE, white}, pvc):-
+        clearScreen, printBoard(TAB),
+        nl, write('Invalid Position. Try again!'), nl,
+        choosePiece(TAB, {LINE, COL, TYPE, white}, pvc).
+
+choosePiece(TAB, {LINE, COL, TYPE, black}, pvc):-
+        random(1,5, LINE),
+        random(1,5, COL),        
+        verifyPosition(TAB, {LINE, COL, TYPE, black}).
+
+choosePiece(TAB, {LINE, COL, TYPE, black}, pvc):-
+        choosePiece(TAB, {LINE, COL, TYPE, black}, pvc).
 
 choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, cvc):-
         random(1,5, LINE),
@@ -178,11 +305,27 @@ movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, pvp):-
         read(LINEEND/COLEND),
         verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB).
 
+movePiece(TAB, {LINE, COL, TYPE, white}, NEWTAB, pvc):-
+        write(' Select Destination (Row/Column) '),
+        read(LINEEND/COLEND),
+        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, white},NEWTAB).
+
+movePiece(TAB, {LINE, COL, TYPE, black}, NEWTAB, pvc):-
+        random(1,5, LINEEND),
+        random(1,5, COLEND),      
+        verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, black},NEWTAB),
+	write('Computer Moved : '),
+	print(TYPE),
+	write(' to '),
+	print(LINEEND),
+	write('/'),
+	print(COLEND), nl, nl.
+
 movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, cvc):-
         random(1,5, LINEEND),
         random(1,5, COLEND),      
         verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB),
-	nl ,write('Computer Moved : '),
+	write('Computer Moved : '),
 	print(TYPE),
 	write(' to '),
 	print(LINEEND),
@@ -521,7 +664,8 @@ gameMode(1):-
         display_game(TAB, white, pvp).
 
 gameMode(2):-
-        write('Em desenvolvimento').
+	board(TAB),
+        display_game(TAB, white, pvc).
 
 gameMode(3):-
         board(TAB),
