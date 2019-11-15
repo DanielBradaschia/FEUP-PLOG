@@ -336,9 +336,9 @@ verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB):-
         verifyMoveInsideBoard(LINEEND, COLEND),
         verifyNotPiece(TAB, {LINEEND, COLEND, _, _}),
         verifyMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}),
-        executeMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB).
+        move({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB).
 
-executeMove({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB):-
+move({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB):-
         moveAux({LINE, COL, TYPE, PLAYER}, {LINEEND,COLEND}, TAB, NEWTAB2),
         erasePiece({LINE, COL, TYPE, PLAYER}, NEWTAB2, NEWTAB).
 
@@ -693,11 +693,6 @@ gameMode(4):-
         play.
 
 gameMode(5):-
-        printEndMenu,
-        sleep(2),
-        halt.
-
-printEndMenu:-
         write(' |-----------------------------------------------------| '), nl,
         write(' |      Thank you so much for playing our game!        | '), nl,
         write(' |-----------------------------------------------------| '), nl,
