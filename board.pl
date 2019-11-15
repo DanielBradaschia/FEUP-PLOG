@@ -43,7 +43,6 @@ display_game(TAB, PLAYER, pvp):-
 
 display_game(TAB, PLAYER, cvc):-
         (
-		sleep(1),
 		isTowerOnBoard(PLAYER, TAB)
                 ->
                         repeat,
@@ -106,30 +105,21 @@ verifyPlace(TAB, {_,_, TYPE, PLAYER}, _):-
 verifyPlace(TAB,{_,_,_,PLAYER}, pvp):-
 	clearScreen, printBoard(TAB),
         nl, write('Invalid Option. Try again!'), nl,
-        placePiece(TAB,PLAYER,[], pvp).
+        gameChoice(1,TAB,PLAYER, pvp).
 
 verifyPlace(TAB,{_,_,_,PLAYER}, cvc):-
-	placePiece(TAB,PLAYER,[], cvc).
+	gameChoice(1,TAB,PLAYER, cvc).
 
 putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp):-
         write(' Select Place (Row/Column) to put in: '),
         read(LINE/COL),
-        verifyMoveInsideBoard(LINE, COL),
-        verifyNotPiece(TAB, {LINE, COL, _, _}),
-        verifyKingDist(TAB, {LINE, COL, TYPE, PLAYER}),
+        verifyPlacement(TAB, LINE, COL), 
         replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB).
-
-putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp):-
-	clearScreen, printBoard(TAB),
-        nl, write('Invalid Position. Try again!'), nl,
-        putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp).
 
 putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc):-
         random(1,5, LINE),
         random(1,5, COL),
-        verifyMoveInsideBoard(LINE, COL),
-        verifyNotPiece(TAB, {LINE, COL, _, _}),
-        verifyKingDist(TAB, {LINE, COL, _, PLAYER}),
+	verifyPlacement(TAB, LINE, COL), 
         replace(TAB, LINE, COL, {LINE, COL, TYPE, PLAYER}, NEWTAB),
 	nl, write('Computer Placed : '),
 	print(TYPE),
@@ -138,9 +128,19 @@ putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc):-
 	write('/'),
 	print(COL), nl, nl.
 
+putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp):-
+	clearScreen, printBoard(TAB),
+        nl, write('Invalid Position. Try again!'), nl,
+        putPiece(TYPE, TAB, PLAYER, NEWTAB, pvp).
+
 putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc):-
         putPiece(TYPE, TAB, PLAYER, NEWTAB, cvc).
-        
+
+verifyPlacement(TAB, LINE, COL):-
+        verifyMoveInsideBoard(LINE, COL),
+        verifyNotPiece(TAB, {LINE, COL, _, _}),
+        verifyKingDist(TAB, {LINE, COL, _, PLAYER}).
+
 choosePiece(TAB, {LINE, COL, TYPE, PLAYER}, pvp):-
         write(' Select Piece (Row/Column): '),
         read(LINE/COL),
