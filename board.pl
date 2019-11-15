@@ -7,8 +7,7 @@ clearScreen:-
 display_game(TAB, PLAYER, win):-
 	printBoard(TAB),
 	nl , print(PLAYER), 
-	write(' : WIN'),
-	play.
+	write(' : WIN').
 
 display_game(TAB, PLAYER, pvp):-
         (
@@ -44,7 +43,7 @@ display_game(TAB, PLAYER, pvp):-
 
 display_game(TAB, PLAYER, cvc):-
         (
-
+		sleep(1),
 		isTowerOnBoard(PLAYER, TAB)
                 ->
                         repeat,
@@ -76,7 +75,7 @@ gameChoice(3, TAB, PLAYER, STATE):-
         getKingPos({KL,KC, king,PLAYER}, TAB),
         replace(TAB, TL, TC, {TL, TC, king, PLAYER}, NEWTAB),
         replace(NEWTAB, KL, KC, {KL, KC, tower, PLAYER}, NEWTAB2),
-        display_game(NEWTAB2, PLAYER, STATE).
+        game_over(NEWTAB2, PLAYER, STATE).
 
 
 placePiece(TAB, PLAYER, NEWTAB, pvp):-
@@ -173,7 +172,7 @@ verifyNotPiece(TAB, {LINE, COL,_,_}):-
 	member({LINE,COL,none,none},PLIST).
 
 movePiece(TAB, {LINE, COL, TYPE, PLAYER}, NEWTAB, pvp):-
-        write(' Select Destination (Row/Column) or 0/0 to Return: '),
+        write(' Select Destination (Row/Column) '),
         read(LINEEND/COLEND),
         verifyEndPosition(TAB,LINEEND,COLEND,{LINE, COL, TYPE, PLAYER},NEWTAB).
 
@@ -274,7 +273,7 @@ verifyKingDist(TAB, {LINE, COL, _, black}):-
         AUX is AUXLINE+AUXCOL,
         AUX>=2.
 
-game_over(TAB, black,_):-
+game_over(TAB, PLAYER,_):-
         getKingPos({PL,PC,king,white}, TAB),
         FRONT is PL-1,
         \+verifyVictory(TAB,FRONT,PC,{PL, PC, king,white}),
@@ -284,9 +283,9 @@ game_over(TAB, black,_):-
         \+verifyVictory(TAB,PL,RIGHT,{PL, PC, king,white}),
         LEFT is PC-1,
         \+verifyVictory(TAB,PL,LEFT,{PL, PC, king,white}),
-	display_game(TAB, black, win).
+	display_game(TAB, PLAYER, win).
 
-game_over(TAB, white,_):-
+game_over(TAB, PLAYER,_):-
         getKingPos({PL,PC,king,black}, TAB),
         FRONT is PL-1,
         \+verifyVictory(TAB,FRONT,PC,{PL,PC,king,black}),
@@ -296,7 +295,7 @@ game_over(TAB, white,_):-
         \+verifyVictory(TAB,PL,RIGHT,{PL,PC,king,black}),
         LEFT is PC-1,
         \+verifyVictory(TAB,PL,LEFT,{PL,PC,king,black}),
-	display_game(TAB, white, win).
+	display_game(TAB, PLAYER, win).
 
 game_over(TAB, black, STATE):-
 	display_game(TAB, white, STATE).
