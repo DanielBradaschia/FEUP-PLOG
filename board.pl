@@ -928,8 +928,9 @@ play:-
 
 
 
-/*
-usar findall para achar valid_moves
-usar choose_move para retornar a primeira opcao valida do validmoves
+valid_moves(TAB, {LINE, COL, TYPE, PLAYER}, L):-
+        findall({X,Y}, move({LINE, COL, TYPE, PLAYER},{X,Y} ,TAB, _), L).
 
-*/
+choose_move(TAB, {LINE, COL, TYPE, PLAYER}, M):-
+        valid_moves(TAB, {LINE, COL, TYPE, PLAYER}, L),
+        random_member(M, L).
