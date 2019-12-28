@@ -54,3 +54,16 @@ getWantedAux(HR, [H|T], L, LAUX):-
 getWantedAux(HR, [H|T], L, LAUX):-
     match([H|T], 3, AUX),
     \+ member(HR, AUX).
+
+getCar([], L).
+
+getCar([H|T], L):-
+    match(H, 1, AUX1),
+    match(H, 2, AUX2),
+    (AUX1 =:= 1 ->
+        AUX2 =:= 1 ->
+        match(H, 0, AUX3),
+        append(L, [AUX3], LAUX),
+        getCar(T, LAUX)
+    ; getCar(T, L)
+    ).
