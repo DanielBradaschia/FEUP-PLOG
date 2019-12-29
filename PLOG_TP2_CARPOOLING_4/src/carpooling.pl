@@ -2,58 +2,75 @@
 
 list(
 [
-[Danilo, 0, 0, [Antonio,Vinicius,Tiago], []],
-[Livia, 1, 1, [Vitoria,Anna], [Danilo]],
-[Vitoria, 1, 0, [Luiza], [Danilo,Nicolash]],
-[Anna, 0, 0, [], [Danilo]],
-[Larissa, 1, 1, [Danilo], []],
-[Luiza, 1, 0, [Danilo], []],
-[Antonio, 1, 1, [Danilo], []],
-[Vinicius, 0, 0, [], []],
-[Tiago, 0, 0, [Alex,Enzo], []],
-[Luiz, 0, 0, [Danilo], []],
-[Alice, 1, 1, [], []],
-[Rafael, 0, 0, [Alice,Erick], [Nicolash]],
-[Erick, 1, 0, [Alice,Rafael], []],
-[Nicolash, 0, 0, [Júlia], []],
-[Renan, 0, 0, [], []],
-[Júlia, 0, 0, [Nicolash], []],
-[Victor, 1, 1, [Diego], []],
-[Diego, 0, 0, [Danilo,Victor], [Luiza]],
-[Alex, 1, 1, [Tiago,Enzo], []],
-[Enzo, 0, 0, [Alex,Tiago,Manuela], [Vitoria]],
-[Manuela, 0, 0, [Laura], [Alex,Diego]],
-[Laura, 0, 0, [Manuela], [Alex,Diego]]
+['Danilo', 0, 0, ['Antonio','Vinicius','Tiago'], []],
+['Livia', 1, 1, ['Vitoria','Anna'], ['Danilo']],
+['Vitoria', 1, 0, ['Luiza'], ['Danilo','Nicolash']],
+['Anna', 0, 0, [], ['Danilo']],
+['Larissa', 1, 1, ['Danilo'], ['Luiz']],
+['Luiza', 1, 0, ['Danilo'], []],
+['Antonio', 1, 1, ['Danilo'], ['Livia']],
+['Vinicius', 0, 0, [], []],
+['Tiago', 0, 0, ['Alex','Enzo'], []],
+['Luiz', 0, 0, ['Danilo','Renan''Larissa'], []],
+['Alice', 1, 1, [], []],
+['Rafael', 0, 0, ['Alice','Erick'], ['Nicolash']],
+['Erick', 1, 0, ['Alice','Rafael'], []],
+['Nicolash', 0, 0, ['Júlia'], []],
+['Renan', 0, 0, [], []],
+['Júlia', 0, 0, ['Nicolash'], []],
+['Victor', 1, 1, ['Diego'], []],
+['Diego', 0, 0, ['Danilo','Victor'], ['Luiza']],
+['Alex', 1, 1, ['Tiago','Enzo'], []],
+['Enzo', 0, 0, ['Alex','Tiago','Manuela'], ['Manuela']],
+['Manuela', 0, 0, ['Laura'], ['Alex','Diego']],
+['Laura', 0, 0, ['Manuela'], ['Alex','Diego']]
 ]
 ).
 
+testeWanted(N,L):-
+    list(X),
+    getWanted(X,N,L).
+
+testeCar(L):-
+    list(X),
+    getCar(X,L).
+
+carpooling(L):-
+    list(X),
+    length(X,I),
+    N is ceiling(I/5),
+    write(N),
+    write(' necessary cars'),nl,
+    getDrivers(X,N,DL).
+
+getDrivers(_,0,_).
+
+getDrivers([H|T],N,DL):-
+    match(H, 1, AUX1),
+    match(H, 2, AUX2),
+    match(H, 0, AUX3),
+    checkDriver(N,AUX3,AUX1,AUX2,D,N2),
+    getDrivers(T,N2,DL).
+
+checkDriver(N,AUX3,1,1,AUX3,N2):-
+    N2 is N-1,
+    write('Driver : '),
+    write(AUX3),nl.
+
+checkDriver(N,_,_,_,[],N2):-
+    N2 is N.
 
 /*Get nth element*/
-match([H|_],0,H) :-
-    !.
+match([H|_],0,H).
+
 match([_|T],N,H) :-
     N > 0,
     N1 is N-1,
     match(T,N1,H).
 
 getWanted([H|T], NUM, L):-
-    match([H|T], NUM, [HR | TR]),
-    getWantedLoop([H|T], HR, L).
-
-getWantedLoop([], HR, L).
-
-getWantedLoop([H|T], HR, L):-
-    getWantedAux(HR, H, L, LAUX),
-    getWantedLoop(T, HR, LAUX).
-
-getWantedAux(HR, [H|T], L, LAUX):-
-    match([H|T], 3, AUX),
-    member(HR, AUX),
-    append(L, [H], LAUX).
-
-getWantedAux(HR, [H|T], L, LAUX):-
-    match([H|T], 3, AUX),
-    \+ member(HR, AUX).
+    match([H|T], NUM, HR),
+    match(HR,3,L).
 
 getCar([], L).
 
