@@ -37,10 +37,20 @@ carpooling(L):-
     N is ceiling(I/5),
     write(N),
     write(' necessary cars'),nl,
-    getDrivers(X,N,L),
-    length(L,I2),
+    getDrivers(X,N,DL),
+    length(DL,I2),
     N2 is N-I2,
-    getDriversExtra(X,N2,L).
+    getDriversExtra(X,N2,DL),
+    addWanted(X,DL,L).
+
+/*adiciona wanteds de cara driver*/
+addWanted(_,[],_).
+
+addWanted(X,[H|T],L):-
+    getWantedbyName(X,H,W),
+    append([H],W,CAR),
+    addWanted(X,T,LAUX),
+    append(LAUX,[CAR],L).
 
 /*getWanted pelo Nome*/
 getWantedbyName([],_,_).
@@ -53,7 +63,7 @@ getWantedbyName([H|T], NAME, L):-
 checkName(H,NAME,NAME,L):-
     match(H,3,L).
 
-checkName(H,N,NAME,_).
+checkName(_,_,_,_).
 
 /*pessoas que querem levar o carro*/
 getDrivers([],_,_).
