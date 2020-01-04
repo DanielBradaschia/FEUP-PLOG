@@ -27,30 +27,21 @@ list(
 ]
 ).
 
-testeWanted(N,L):-
-    list(X),
-    getWanted(X,N,L).
-
-testeCar(L):-
-    list(X),
-    getCar(X,L).
-
 carpooling(L):-
     list(X),
     length(X,I),
     N is ceiling(I/5),
     write(N),
     write(' necessary cars'),nl,
-    getDrivers(X,N,DL),
-    length(DL,I2),
+    getDrivers(X,N,L),
+    length(L,I2),
     N2 is N-I2,
-    getDriversExtra(X,N2,DL),
-    write(DL).
+    getDriversExtra(X,N2,L).
 
 /*pessoas que querem levar o carro*/
-getDrivers([],_,DL).
+getDrivers([],_,_).
 
-getDrivers(_,0,DL).
+getDrivers(_,0,_).
 
 getDrivers([H|T],N,DL):-
     match(H, 1, AUX1),
@@ -69,9 +60,9 @@ checkDriver(N,N2,_,_,_,[]):-
     N2 is N.
 
 /*pessoas que não querem levar o carro, mas tem*/
-getDriversExtra([],_,DL).
+getDriversExtra([],_,_).
 
-getDriversExtra(_,0,DL).
+getDriversExtra(_,0,_).
 
 getDriversExtra([H|T],N,DL):-
     match(H, 1, AUX1),
@@ -101,7 +92,7 @@ getWanted([H|T], NUM, L):-
     match([H|T], NUM, HR),
     match(HR,3,L).
 
-getCar([], L).
+getCar([], _).
 
 getCar([H|T], L):-
     match(H, 1, AUX1),
