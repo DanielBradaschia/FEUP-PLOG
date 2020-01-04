@@ -1,34 +1,38 @@
-/*nome | tem carro? (0,1) | deseja levar carro? (0,1) | grupo desejado (lista de nomes) | grupo indesejado (lista de nomes)*/
+:-use_module(library(clpfd)).
 
+/*nome | tem carro? (0,1) | deseja levar carro? (0,1) | grupo desejado (id) | grupo indesejado (id)*/
 list(
 [
-['Danilo', 0, 0, ['Antonio','Vinicius','Tiago'], []],
-['Livia', 1, 1, ['Vitoria','Anna'], ['Danilo']],
-['Vitoria', 1, 0, ['Luiza'], ['Danilo','Nicolash']],
-['Anna', 0, 0, [], ['Danilo']],
-['Larissa', 1, 1, ['Danilo'], ['Luiz']],
-['Luiza', 1, 0, ['Danilo'], []],
-['Antonio', 1, 1, ['Danilo'], ['Livia']],
-['Vinicius', 0, 0, [], []],
-['Tiago', 0, 0, ['Alex','Enzo'], []],
-['Luiz', 0, 0, ['Danilo','Renan''Larissa'], []],
-['Alice', 1, 1, [], []],
-['Rafael', 0, 0, ['Alice','Erick'], ['Nicolash']],
-['Erick', 1, 0, ['Alice','Rafael'], []],
-['Nicolash', 0, 0, ['Júlia'], []],
-['Renan', 0, 0, [], []],
-['Júlia', 0, 0, ['Nicolash'], []],
-['Victor', 1, 1, ['Diego'], []],
-['Diego', 0, 0, ['Danilo','Victor'], ['Luiza']],
-['Alex', 1, 1, ['Tiago','Enzo'], []],
-['Enzo', 0, 0, ['Alex','Tiago','Manuela'], ['Manuela']],
-['Manuela', 0, 0, ['Laura'], ['Alex','Diego']],
-['Laura', 0, 0, ['Manuela'], ['Alex','Diego']]
+['Danilo',       0, 0, 1, 2],
+['Livia',        1, 1, 2, 3],
+['Vitoria',      1, 0, 3, 4],
+['Anna',         0, 0, 4, 5],
+['Larissa',      1, 1, 5, 1],
+['Luiza',        1, 0, 1, 2],
+['Antonio',      1, 1, 1, 2],
+['Vinicius',     0, 0, 3, 4],
+['Tiago',        0, 0, 2, 3],
+['Luiz',         0, 0, 4, 5],
+['Alice',        1, 1, 5, 1],
+['Rafael',       0, 0, 2, 3],
+['Erick',        1, 0, 2, 3],
+['Nicolash',     0, 0, 3, 4],
+['Renan',        0, 0, 1, 2],
+['Julia',        0, 0, 4, 5],
+['Victor',       1, 1, 3, 4],
+['Diego',        0, 0, 5, 1],
+['Alex',         1, 1, 2, 3],
+['Enzo',         0, 0, 3, 4],
+['Manuela',      0, 0, 4, 5],
+['Laura',        0, 0, 1, 2]
 ]
 ).
 
-testWanted(L):-
+testWanted(N,L):-
     list(X),
+    length(X,I),
+    write(I), nl,
+    N #\= I,
     getWantedbyName(X, 'Enzo', L).
 
 carpooling(L):-
@@ -38,12 +42,17 @@ carpooling(L):-
     write(N),
     write(' necessary cars'),nl,
     getDrivers(X,N,DL),
+    write('Drivers List: '), write(DL), nl,
     length(DL,I2),
-    N2 is N-I2,
-    getDriversExtra(X,N2,DL),
-    addWanted(X,DL,L).
+    (I2 #= N ->
+        addWanted(X,DL,L)
+    ;
+        N2 is N-I2,
+        getDriversExtra(X,N2,L),
+        addWanted(X,DL,L)
+    ).
 
-/*adiciona wanteds de cara driver*/
+/*adiciona wanteds de cada driver*/
 addWanted(_,[],_).
 
 addWanted(X,[H|T],L):-
@@ -59,6 +68,11 @@ getWantedbyName([H|T], NAME, L):-
     match(H,0,N),
     checkName(H,N,NAME,L),
     getWantedbyName(T,NAME,L).
+
+checkName(H,NAME,NAME,L):-
+    match(H,3,L).
+
+checkName(_,_,_,_).
 
 checkName(H,NAME,NAME,L):-
     match(H,3,L).
@@ -114,20 +128,3 @@ match([_|T],N,H) :-
     N > 0,
     N1 is N-1,
     match(T,N1,H).
-
-getWanted([H|T], NUM, L):-
-    match([H|T], NUM, HR),
-    match(HR,3,L).
-
-getCar([], _).
-
-getCar([H|T], L):-
-    match(H, 1, AUX1),
-    match(H, 2, AUX2),
-    (AUX1 =:= 1 ->
-        AUX2 =:= 1 ->
-        match(H, 0, AUX3),
-        append(L, [AUX3], LAUX),
-        getCar(T, LAUX)
-    ; getCar(T, L)
-    ).
