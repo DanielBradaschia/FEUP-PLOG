@@ -27,6 +27,10 @@ list(
 ]
 ).
 
+testWanted(L):-
+    list(X),
+    getWantedbyName(X, 'Enzo', L).
+
 carpooling(L):-
     list(X),
     length(X,I),
@@ -37,6 +41,19 @@ carpooling(L):-
     length(L,I2),
     N2 is N-I2,
     getDriversExtra(X,N2,L).
+
+/*getWanted pelo Nome*/
+getWantedbyName([],_,_).
+
+getWantedbyName([H|T], NAME, L):-
+    match(H,0,N),
+    checkName(H,N,NAME,L),
+    getWantedbyName(T,NAME,L).
+
+checkName(H,NAME,NAME,L):-
+    match(H,3,L).
+
+checkName(H,N,NAME,_).
 
 /*pessoas que querem levar o carro*/
 getDrivers([],_,_).
