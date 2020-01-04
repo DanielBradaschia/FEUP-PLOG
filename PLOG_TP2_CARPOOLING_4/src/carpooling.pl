@@ -41,23 +41,52 @@ carpooling(L):-
     N is ceiling(I/5),
     write(N),
     write(' necessary cars'),nl,
-    getDrivers(X,N,DL).
+    getDrivers(X,N,DL),
+    length(DL,I2),
+    N2 is N-I2,
+    getDriversExtra(X,N2,DL),
+    write(DL).
 
-getDrivers(_,0,_).
+/*pessoas que querem levar o carro*/
+getDrivers([],_,DL).
+
+getDrivers(_,0,DL).
 
 getDrivers([H|T],N,DL):-
     match(H, 1, AUX1),
     match(H, 2, AUX2),
     match(H, 0, AUX3),
-    checkDriver(N,AUX3,AUX1,AUX2,D,N2),
-    getDrivers(T,N2,DL).
+    checkDriver(N,N2,AUX3,AUX1,AUX2,D),
+    getDrivers(T,N2,DAUX),
+    append(DAUX,D,DL).
 
-checkDriver(N,AUX3,1,1,AUX3,N2):-
+checkDriver(N,N2,AUX3,1,1,[AUX3]):-
     N2 is N-1,
     write('Driver : '),
     write(AUX3),nl.
 
-checkDriver(N,_,_,_,[],N2):-
+checkDriver(N,N2,_,_,_,[]):-
+    N2 is N.
+
+/*pessoas que não querem levar o carro, mas tem*/
+getDriversExtra([],_,DL).
+
+getDriversExtra(_,0,DL).
+
+getDriversExtra([H|T],N,DL):-
+    match(H, 1, AUX1),
+    match(H, 2, AUX2),
+    match(H, 0, AUX3),
+    checkDriverExtra(N,N2,AUX3,AUX1,AUX2,D),
+    getDriversExtra(T,N2,DAUX),
+    append(DAUX,D,DL).
+
+checkDriverExtra(N,N2,AUX3,1,0,[AUX3]):-
+    N2 is N-1,
+    write('Driver : '),
+    write(AUX3),nl.
+
+checkDriverExtra(N,N2,_,_,_,[]):-
     N2 is N.
 
 /*Get nth element*/
