@@ -3,81 +3,88 @@
 /*nome | tem carro? (0,1) | deseja levar carro? (0,1) | grupo desejado (id) | grupo indesejado (id)*/
 list(
 [
-['Danilo',       0, 0, 1, 2],
-['Livia',        1, 1, 2, 3],
-['Vitoria',      1, 0, 3, 4],
-['Anna',         0, 0, 4, 5],
-['Larissa',      1, 1, 5, 1],
-['Luiza',        1, 0, 1, 2],
-['Antonio',      1, 1, 1, 2],
-['Vinicius',     0, 0, 3, 4],
-['Tiago',        0, 0, 2, 3],
-['Luiz',         0, 0, 4, 5],
-['Alice',        1, 1, 5, 1],
-['Rafael',       0, 0, 2, 3],
-['Erick',        1, 0, 2, 3],
-['Nicolash',     0, 0, 3, 4],
-['Renan',        0, 0, 1, 2],
-['Julia',        0, 0, 4, 5],
-['Victor',       1, 1, 3, 4],
-['Diego',        0, 0, 5, 1],
-['Alex',         1, 1, 2, 3],
-['Enzo',         0, 0, 3, 4],
-['Manuela',      0, 0, 4, 5],
-['Laura',        0, 0, 1, 2]
+[1,       0, 0, 1, 2],
+[2,        1, 1, 2, 3],
+[3,      1, 0, 3, 4],
+[4,         0, 0, 4, 5],
+[5,      1, 1, 5, 1],
+[6,        1, 0, 1, 2],
+[7,      1, 1, 1, 2],
+[8,     0, 0, 3, 4],
+[9,        0, 0, 2, 3],
+[10,         0, 0, 4, 5],
+[11,        1, 1, 5, 1],
+[12,       0, 0, 2, 3],
+[13,        1, 0, 2, 3],
+[14,     0, 0, 3, 4],
+[15,        0, 0, 1, 2],
+[16,        0, 0, 4, 5],
+[17,       1, 1, 3, 4],
+[18,        0, 0, 5, 1],
+[19,         1, 1, 2, 3],
+[20,         0, 0, 3, 4],
+[21,      0, 0, 4, 5],
+[22,        0, 0, 1, 2]
 ]
 ).
 
-testWanted(N,L):-
-    list(X),
-    length(X,I),
-    write(I), nl,
-    N #\= I,
-    getWantedbyName(X, 'Enzo', L).
-
 carpooling(L):-
     list(X),
-    length(X,I),
-    N is ceiling(I/5),
-    write(N),
-    write(' necessary cars'),nl,
-    getDrivers(X,N,DL),
-    write('Drivers List: '), write(DL), nl,
+    solve(X,N,L),
+    print(N).
+
+solve(INPUT,NUMBER,OUTPUT):-
+    length(INPUT, NAUX),
+    NUMBER is ceiling(NAUX/5),
+
+    getDrivers(INPUT,NUMBER,DL),
     length(DL,I2),
     (I2 #= N ->
-        addWanted(X,DL,L)
+        addWanted(INPUT,DL,OUTPUT)
     ;
         N2 is N-I2,
-        getDriversExtra(X,N2,L),
-        addWanted(X,DL,L)
+        getDriversExtra(INPUT,N2,DL1),
+        append(DL,DL1,DLF),
+        addWanted(INPUT,DLF,OUTPUT)
     ).
 
 /*adiciona wanteds de cada driver*/
 addWanted(_,[],_).
 
 addWanted(X,[H|T],L):-
-    getWantedbyName(X,H,W),
+    getWantedGroup(X,H,G),
+    getWantedIds(X,G,W),
     append([H],W,CAR),
+    all_distinct(CAR),
     addWanted(X,T,LAUX),
     append(LAUX,[CAR],L).
 
-/*getWanted pelo Nome*/
-getWantedbyName([],_,_).
+/*getWanted Ids*/
+getWantedIds([],_,_).
 
-getWantedbyName([H|T], NAME, L):-
+getWantedIds([H|T], G, L):-
+    getWantedIds(T,G,LAUX),
+    match(H,3,N),
+    checkId(H,N,G,I),
+    append(LAUX,I,L).
+
+checkId(H,G,G,[I]):-
+    match(H,0,I).
+
+checkId(_,_,_,[]).
+
+/*getWanted Group*/
+getWantedGroup([],_,_).
+
+getWantedGroup([H|T], G, L):-
     match(H,0,N),
-    checkName(H,N,NAME,L),
-    getWantedbyName(T,NAME,L).
+    checkGroup(H,N,G,L),
+    getWantedGroup(T,G,L).
 
-checkName(H,NAME,NAME,L):-
+checkGroup(H,G,G,L):-
     match(H,3,L).
 
-checkName(_,_,_,_).
-
-checkName(H,NAME,NAME,L):-
-    match(H,3,L).
-
-checkName(_,_,_,_).
+checkGroup(_,_,_,_).
 
 /*pessoas que querem levar o carro*/
 getDrivers([],_,_).
