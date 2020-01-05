@@ -1,6 +1,6 @@
 :- use_module(library(clpfd)).
 :- use_module(library(lists)).
-
+ 
 /*nome | tem carro? (0,1) | deseja levar carro? (0,1) | grupo desejado (id) | grupo indesejado (id)*/
 list(
 [
@@ -28,13 +28,13 @@ list(
 {22, 0, 0, 1, 2}
 ]
 ).
-
-
+ 
+ 
 carpooling(L):-
     list(X),
     solve(X,N,L), !,
     write('Total Cars: '),print(N),nl.
-
+ 
 solve(INPUT,NUMBER,OUTPUT):-
     length(INPUT, NAUX),
     NUMBER is ceiling(NAUX/5),
@@ -53,10 +53,10 @@ solve(INPUT,NUMBER,OUTPUT):-
         addWanted(INPUT,OUTPUT3,OUTPUT4),
         addnoUnwanted(INPUT,OUTPUT4,OUTPUT)
     ).
-
+ 
 /*add rest*/
 addRest(_,[],_).
-
+ 
 addRest(X,[H|T],L):-
     length(H,C),
     C2 is 5-C,
@@ -64,16 +64,16 @@ addRest(X,[H|T],L):-
     append(H,W,CAR),
     addRest(X,T,LAUX),
     append(LAUX,[CAR],L).
-
+ 
 addPeopleRest(_,_,0,[]).
-
+ 
 addPeopleRest(X,[HS|_],C,CAR):-
     getUnwantedGroup(X,HS,UG),
     getUnwantedIds(X,UG,C,CAR).
-
+ 
 /*add others in car*/
 addnoUnwanted(_,[],_).
-
+ 
 addnoUnwanted(X,[H|T],L):-
     length(H,C),
     C2 is 5-C,
@@ -81,85 +81,85 @@ addnoUnwanted(X,[H|T],L):-
     append(H,W,CAR),
     addnoUnwanted(X,T,LAUX),
     append(LAUX,[CAR],L).
-
+ 
 addPeople(_,_,0,[]).
-
+ 
 addPeople(X,[HS|_],C,CAR):-
     getUnwantedGroup(X,HS,UG),
     getWantedGroup(X,HS,WG),
     getNeutralIds(X,UG,WG,C,CAR).
-
-/*add wanted people*/
+ 
+/*add wanted people in car*/
 addWanted(_,[],_).
-
+ 
 addWanted(X,[H|T],L):-
     getWantedGroup(X,H,G),
     getWantedIds(X,G,W),
     makeCar(H,W,CAR),
     addWanted(X,T,LAUX),
     append(LAUX,[CAR],L).
-
+ 
 /*create a car with no duplicates*/
 makeCar(H,W,CAR):-
     member(H,W),
     deleteH(H,W,W2),
     append([H],W2,CAR).
-
+ 
 makeCar(H,W,CAR):-
     append([H],W,CAR).
-
+ 
 deleteH(_,[],_).
-
+ 
 deleteH(H,[H|T],W):-
     deleteH(H,T,W).
-
+ 
 deleteH(H,[HW|T],W):-
     deleteH(H,T,WAUX),
     append(WAUX,[HW],W).
-
+ 
 /*getWanted Group*/
 getWantedGroup([],_,_).
-
+ 
 getWantedGroup([{ID,_,_,G,_}|_], ID, G).
-
+ 
 getWantedGroup([_|T],ID,G):-
     getWantedGroup(T,ID,G).
-
+ 
 /*getUnwanted Group*/
 getUnwantedGroup([],_,_).
-
+ 
 getUnwantedGroup([{ID,_,_,_,G}|_], ID, G).
-
+ 
 getUnwantedGroup([_|T],ID,G):-
     getWantedGroup(T,ID,G).
-
+ 
 /*getWanted Ids*/
 getWantedIds([],_,_).
-
+ 
 getWantedIds([{ID,_,_,G,_}|T], G, L):-
     getWantedIds(T,G,LAUX),
     append(LAUX,[ID],L).
-
+ 
 getWantedIds([_|T], G, L):-
     getWantedIds(T,G,L).
-
-
+ 
+ 
 /*getNeutral Ids*/
 getNeutralIds(_,_,_,0,_).
-
+ 
 getNeutralIds([],_,_,_,_).
-
+ 
 getNeutralIds([{_,_,_,_,UG}|T], UG, WG, C, L):-
     getNeutralIds(T,UG,WG,C,L).
-
+ 
 getNeutralIds([{_,_,_,WG,_}|T], UG, WG, C, L):-
     getNeutralIds(T,UG,WG,C,L).
-
+ 
 getNeutralIds([{ID,_,_,_,_}|T], UG, WG, C, L):-
     C2 is C-1,
     getNeutralIds(T,UG,WG,C2,LAUX),
     append(LAUX,[ID],L).
-
+ 
 /*getUnwanted Ids*/
 getUnwantedIds(_,_,0,_).
 
@@ -173,30 +173,30 @@ getUnwantedIds([{ID,_,_,_,G}|T], C, G, L):-
 getUnwantedIds([_|T], G, C, L):-
     getWantedIds(T,G,C,L).
 
-
+ 
 /*get drivers who want to bring their car*/
 getDrivers([],_,_).
-
+ 
 getDrivers(_,0,_).
-
+ 
 getDrivers([{H,1,1,_,_}|T],N,DL):-
     N2 is N-1,
     getDrivers(T,N2,DAUX),
     append(DAUX,[H],DL).
-
+ 
 getDrivers([_|T],N,DL):-
     getDrivers(T,N,DL).
-
-
+ 
+ 
 /*get extra drivers, those who don't want to bring their car*/
 getDriversExtra([],_,_).
-
+ 
 getDriversExtra(_,0,[]).
-
+ 
 getDriversExtra([{H,1,0,_,_}|T],N,DL):-
     N2 is N-1,
     getDriversExtra(T,N2,DAUX),
     append(DAUX,[H],DL).
-
+ 
 getDriversExtra([_|T],N,DL):-
     getDriversExtra(T,N,DL).
