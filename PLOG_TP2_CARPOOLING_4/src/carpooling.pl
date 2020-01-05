@@ -29,23 +29,28 @@ list(
 ]
 ).
 
+
 carpooling(L):-
     list(X),
-    solve(X,N,L),
+    solve(X,N,L), !,
     write('Total Cars: '),print(N),nl.
 
 solve(INPUT,NUMBER,OUTPUT):-
     length(INPUT, NAUX),
     NUMBER is ceiling(NAUX/5),
     getDrivers(INPUT,NUMBER,OUTPUT1),
-    length(OUTPUT1,N2),
-    NE is NUMBER-N2,
-    getDriversExtra(INPUT,NE,OUTPUT2),
-    append(OUTPUT1,OUTPUT2,OUTPUT1),
     write('Drivers: '),print(OUTPUT1),nl,
-    addWanted(INPUT,OUTPUT1,OUTPUT4),
-    addnoUnwanted(INPUT,OUTPUT4,OUTPUT5),
-    addRest(INPUT,OUTPUT5,OUTPUT).
+    length(OUTPUT1,N2),
+    ( N2 #= NUMBER->
+        addWanted(INPUT,OUTPUT1,OUTPUT4),
+        addnoUnwanted(INPUT,OUTPUT4,OUTPUT)
+    ;
+        NE is NUMBER-N2,
+        getDriversExtra(INPUT,NE,OUTPUT2),
+        append(OUTPUT1,OUTPUT2,OUTPUT1),
+        addWanted(INPUT,OUTPUT1,OUTPUT4),
+        addnoUnwanted(INPUT,OUTPUT4,OUTPUT)
+    ).
 
 /*add rest*/
 addRest(_,[],_).
