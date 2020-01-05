@@ -42,13 +42,15 @@ solve(INPUT,NUMBER,OUTPUT):-
     write('Drivers: '),print(OUTPUT1),nl,
     length(OUTPUT1,N2),
     ( N2 #= NUMBER->
+        all_distinct(OUTPUT1),
         addWanted(INPUT,OUTPUT1,OUTPUT4),
         addnoUnwanted(INPUT,OUTPUT4,OUTPUT)
     ;
         NE is NUMBER-N2,
         getDriversExtra(INPUT,NE,OUTPUT2),
-        append(OUTPUT1,OUTPUT2,OUTPUT1),
-        addWanted(INPUT,OUTPUT1,OUTPUT4),
+        append(OUTPUT1,OUTPUT2,OUTPUT3),
+        all_distinct(OUTPUT3),
+        addWanted(INPUT,OUTPUT3,OUTPUT4),
         addnoUnwanted(INPUT,OUTPUT4,OUTPUT)
     ).
 
