@@ -44,7 +44,25 @@ solve(INPUT,NUMBER,OUTPUT):-
     append(OUTPUT1,OUTPUT2,OUTPUT1),
     write('Drivers: '),print(OUTPUT1),nl,
     addWanted(INPUT,OUTPUT1,OUTPUT4),
-    addnoUnwanted(INPUT,OUTPUT4,OUTPUT).
+    addnoUnwanted(INPUT,OUTPUT4,OUTPUT5),
+    addRest(INPUT,OUTPUT5,OUTPUT).
+
+/*add rest*/
+addRest(_,[],_).
+
+addRest(X,[H|T],L):-
+    length(H,C),
+    C2 is 5-C,
+    addPeopleRest(X,H,C2,W),
+    append(H,W,CAR),
+    addRest(X,T,LAUX),
+    append(LAUX,[CAR],L).
+
+addPeopleRest(_,_,0,[]).
+
+addPeopleRest(X,[HS|_],C,CAR):-
+    getUnwantedGroup(X,HS,UG),
+    getUnwantedIds(X,UG,C,CAR).
 
 /*add others in car*/
 addnoUnwanted(_,[],_).
@@ -145,6 +163,17 @@ getNeutralIds([{ID,_,_,_,_}|T], UG, WG, C, L):-
     C2 is C-1,
     getNeutralIds(T,UG,WG,C2,LAUX),
     append(LAUX,[ID],L).
+
+/*getUnwanted Ids*/
+getWantedIds([],_,_).
+
+getWantedIds([{ID,_,_,_,G}|T], G, L):-
+    getWantedIds(T,G,LAUX),
+    append(LAUX,[ID],L).
+
+getWantedIds([_|T], G, L):-
+    getWantedIds(T,G,L).
+
 
 /*get drivers who want to bring their car*/
 getDrivers([],_,_).
