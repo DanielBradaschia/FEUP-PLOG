@@ -89,17 +89,6 @@ addPeople(X,[HS|_],C,CAR):-
     getWantedGroup(X,HS,WG),
     getNeutralIds(X,UG,WG,C,CAR).
 
-/*add wanted people in car*/
-addWanted(_,[],_).
-
-addWanted(X,[H|T],L):-
-    getWantedGroup(X,H,G),
-    getWantedIds(X,G,W),
-    makeCar(H,W,CAR),
-    addWanted(X,T,LAUX),
-    append(LAUX,[CAR],L).
-
-
 /*add wanted people*/
 addWanted(_,[],_).
 
@@ -172,14 +161,17 @@ getNeutralIds([{ID,_,_,_,_}|T], UG, WG, C, L):-
     append(LAUX,[ID],L).
 
 /*getUnwanted Ids*/
-getWantedIds([],_,_).
+getUnwantedIds(_,_,0,_).
 
-getWantedIds([{ID,_,_,_,G}|T], G, L):-
-    getWantedIds(T,G,LAUX),
+getUnwantedIds([],_,_,_).
+
+getUnwantedIds([{ID,_,_,_,G}|T], C, G, L):-
+    C2 is C-1,
+    getUnwantedIds(T,G,C2,LAUX),
     append(LAUX,[ID],L).
 
-getWantedIds([_|T], G, L):-
-    getWantedIds(T,G,L).
+getUnwantedIds([_|T], G, C, L):-
+    getWantedIds(T,G,C,L).
 
 
 /*get drivers who want to bring their car*/
