@@ -44,14 +44,16 @@ solve(INPUT,NUMBER,OUTPUT):-
     ( N2 #= NUMBER->
         all_distinct(OUTPUT1),
         addWanted(INPUT,OUTPUT1,OUTPUT4),
-        addnoUnwanted(INPUT,OUTPUT4,OUTPUT)
+        addnoUnwanted(INPUT,OUTPUT4,OUTPUT5),
+        addRest(INPUT,OUTPUT5,OUTPUT)
     ;
         NE is NUMBER-N2,
         getDriversExtra(INPUT,NE,OUTPUT2),
         append(OUTPUT1,OUTPUT2,OUTPUT3),
         all_distinct(OUTPUT3),
         addWanted(INPUT,OUTPUT3,OUTPUT4),
-        addnoUnwanted(INPUT,OUTPUT4,OUTPUT)
+        addnoUnwanted(INPUT,OUTPUT4,OUTPUT5),
+        addRest(INPUT,OUTPUT5,OUTPUT)
     ).
  
 /*add rest*/
